@@ -1,0 +1,13 @@
+/*   --dark-red: #390C06;
+  --red: #8F1B15;
+  --peach: #F3A770;
+  --brown: #4F2B1B;
+  --dark-brown: #1A130D;
+  */
+#map { 
+    height: 500px; 
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
