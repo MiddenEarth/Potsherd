@@ -1,13 +1,89 @@
-/*   --dark-red: #390C06;
+/* 
+  --dark-red: #390C06;
   --red: #8F1B15;
   --peach: #F3A770;
   --brown: #4F2B1B;
   --dark-brown: #1A130D;
   */
+
+
+  /* color coords 2 
+   --gold: #C99A2E;
+    --dark-gold: #A87518;
+
+    --brown: #745A3A;
+    --light-brown: #89714D;
+    --tan: #A59174;
+    --dark-brown: #4A3821;
+    --very-dark-brown: #281D0D;
+
+    --black: #000000;
+    --dark-gray: #212121;
+    --gray: #2D2B28;
+    --charcoal: #262422;
+
+    --cream: #D6C39B;
+    --white: #FFFFFF;
+  */
 #map { 
     height: 500px; 
     width: 100%;
-    max-width: 800px;
+    max-width: 600px;
     margin: 20px auto;
+    border: 2px solid #1A130D;
+}
+h1 {
+    text-align: center;
+    color: #390C06;
+    font-family: 'Arial', sans-serif;
+}
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+    padding: 18px 0;
+
+    backdrop-filter: blur(12px);
+
+    background: #1A130D;
+
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+
+    text-align: center;
+}
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+nav ul li {
+    display: inline-block;
+    margin: 0 15px;
+}
+nav ul li a {
+    text-decoration: none;
+    color: #F3A770;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+nav ul li a:hover {
+    color: #8F1B15;
+} 
+
+body {
+    background-color: #F3A770;
+    font-family: 'Arial', sans-serif;
+}
+label {
+  display: inline-block;
+  font:
+    1rem "Fira Sans",
+    sans-serif;
 }
 
+input,
+label {
+  margin: 0.4rem 0;
+}
