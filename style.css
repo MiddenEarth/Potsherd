@@ -25,13 +25,7 @@
     --cream: #D6C39B;
     --white: #FFFFFF;
   */
-#map { 
-    height: 500px; 
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    border: 2px solid #1A130D;
-}
+
 h1 {
     text-align: center;
     color: #390C06;
@@ -86,4 +80,66 @@ label {
 input,
 label {
   margin: 0.4rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+}
+input {
+  padding: 0.4rem;
+  border: 1px solid #8F1B15;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #F3A770;
+  border: 1px solid #8F1B15;
+  border-radius: 8px;
+}
+.map-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    margin: 20px auto;
+}
+
+form {
+    width: 300px;
+    margin: 0;
+    padding: 20px;
+    background-color: #F3A770;
+    border: 1px solid #8F1B15;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+#map {
+    height: 500px;
+    width: 600px;
+    max-width: 60%;
+    margin: 0;
+    border: 2px solid #1A130D;
+}
+
+.coordinate-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.coordinate-field {
+    width: 100%;
+}
+.coordinate-inputs {
+    flex-direction: column;
+    gap: 10px;
+}
+
+.coordinate-field {
+    width: 100%;
 }
