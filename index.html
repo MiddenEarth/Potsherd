@@ -21,29 +21,34 @@
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
-    <label for="Coordinates">Enter Latitude:</label>
-
+    <form id="coordinate-form">
+    <label for="latitude">Enter Latitude:</label>
 <input
   type="text"
-  id="Coordinates"
-  name="Coordinates"
+  id="latitude"
+  name="latitude"
   required
   minlength="4"
   maxlength="8"
-  size="10" />
+  size="10" 
+  placeholder="Enter Latitude"/>
 
-        <label for="Coordinates">Enter Longitude:</label>
+        <label for="longitude">Enter Longitude:</label>
 
 <input
   type="text"
-  id="Coordinates"
-  name="Coordinates"
+  id="longitude"
+  name="longitude"
   required
   minlength="4"
   maxlength="8"
-  size="10" />
+  size="10" 
+  placeholder="Enter Longitude"/>
+<button class="submit-button" id="submit-button" type="button">Submit</button>
+    </form>
     <div id="map"></div>
-    <script src="script.js"></script>
+
+<script src="script.js"></script>
 </body>
 
 
