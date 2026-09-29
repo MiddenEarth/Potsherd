@@ -12,44 +12,72 @@
 
 </head>
 
+
 <body>
-        <h1 class="map-title">Potsherd Map</h1>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
-    <div class="map-container">
+<h1 class="map-title">Potsherd Map</h1>
+<nav>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+    </ul>
+</nav>
+<div class="map-container">
     <form id="coordinate-form">
-    <label for="latitude">Enter Latitude:</label>
-<input
-  type="text"
-  id="latitude"
-  name="latitude"
-  required
-  minlength="4"
-  maxlength="8"
-  size="10" 
-  placeholder="Enter Latitude"/>
-
+        <label for="latitude">Enter Latitude:</label>
+        <input type="text"
+               id="latitude"
+               name="latitude"
+               required
+               minlength="4"
+               maxlength="8"
+               size="10"
+               placeholder="Enter Latitude"/>
         <label for="longitude">Enter Longitude:</label>
-
-<input
-  type="text"
-  id="longitude"
-  name="longitude"
-  required
-  minlength="4"
-  maxlength="8"
-  size="10" 
-  placeholder="Enter Longitude"/>
-<button class="submit-button" id="submit-button" type="button">Submit</button>
-<button class="convert-button" id="convert-button" type="button">Convert</button>
-        <br><output name="zone" for="zone" id="zone"></output>
-        <br><output name="easting" for="easting" id="easting"></output>
-        <br><output name="northing" for="northing" id="northing"></output>
+        <input type="text"
+               id="longitude"
+               name="longitude"
+               required
+               minlength="4"
+               maxlength="8"
+               size="10"
+               placeholder="Enter Longitude"/>
+        <button class="submit-button" id="submit-button" type="button">Submit</button>
+        <button class="convert-button" id="convert-button" type="button">Convert</button><br>
+        <output name="zone" for="zone" id="zone"></output><br>
+        <output name="easting" for="easting" id="easting"></output><br>
+        <output name="northing" for="northing" id="northing"></output><br>
+        <label for="buffer">Enter Buffer for circle in meters</label>
+        <input type="text"
+               id="buffer"
+               name="buffer"
+               required
+               minlength="4"
+               maxlength="8"
+               size="10"
+               placeholder="Enter circle_longitude"/>
+        <button class="submit-button" id="circle-button" type="button">make circle</button>
+        <label for="latitude-list">Enter Latitude:</label>
+        <input type="text"
+               id="latitude-list"
+               name="latitude-list"
+               required
+               minlength="4"
+               maxlength="8"
+               size="10"
+               placeholder="Enter Latitude"/>
+        <label for="latitude-list">Enter Longitude:</label>
+        <input type="text"
+               id="longitude-list"
+               name="longitude-list"
+               required
+               minlength="4"
+               maxlength="8"
+               size="10"
+               placeholder="Enter Longitude"/>
+        <button class="submit-button" id="add-list" type="button">add coords</button>
+        <button class="submit-button" id="make-list" type="button">make polygon</button>
+        <button class="submit-button" id="clear-list" type="button">clear</button>
 
     </form>
     <div id="map"></div>

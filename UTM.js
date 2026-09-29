@@ -71,3 +71,4 @@ if (south_hemisphere)
 console.log("easting is "+easting);
 console.log("northing is "+northing);
 console.log("zone in "+z+zone_letter);
+

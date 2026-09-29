@@ -23,7 +23,59 @@ const convertButton = document.getElementById('convert-button');
 const output_easting = document.getElementById('easting');
 const output_northing = document.getElementById('northing');
 const output_zone = document.getElementById('zone');
+const buffer_input = document.getElementById('buffer');
+const make_circle = document.getElementById('circle-button');
+const latitudeList = document.getElementById('latitude-list');
+const longitudeList = document.getElementById('longitude-list');
+const addButton = document.getElementById('add-list');
+const makePolygonButton = document.getElementById('make-list');
+const clearPolygonButton = document.getElementById('clear-list');
 
+let polygonList = [];
+let markerList = [];
+let polygon=null;
+function addList() {
+    const latitude = parseFloat(latitudeList.value);
+    const longitude = parseFloat(longitudeList.value);
+    let cord = [latitude, longitude];
+    polygonList.push(cord);
+    let marker = L.marker([latitude, longitude]);
+    marker.addTo(map);
+    let number = markerList.length+1;
+    marker.bindPopup(number.toString()).openPopup();
+    markerList.push(marker);
+}
+function makePolygon() {
+    polygon = L.polygon(polygonList);
+    polygon.addTo(map);
+    map.fitBounds(polygon.getBounds());
+}
+function clearList() {
+    if (polygon!=null) {
+        polygon.removeFrom(map);
+        polygon = null;
+    }
+
+    polygonList = [];
+    for (let i = 0; i < markerList.length; i++) {
+        markerList[i].removeFrom(map);
+    }
+    markerList = [];
+}
+
+addButton.addEventListener('click', addList);
+makePolygonButton.addEventListener('click', makePolygon);
+clearPolygonButton.addEventListener('click',clearList);
+
+
+
+function makeCircle() {
+    const latitude = parseFloat(latitudeInput.value);
+    const longitude = parseFloat(longitudeInput.value);
+    const buffer = parseFloat(buffer_input.value);
+
+    L.circle([latitude, longitude], {radius : buffer}).addTo(map);
+}
 // Function to move the map
 function goToLocation() {
 
@@ -145,3 +197,5 @@ function convert(){
     output_zone.value = z+zone_letter;
 }
 convertButton.addEventListener('click', convert);
+make_circle.addEventListener('click', makeCircle);
+
