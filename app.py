@@ -8,7 +8,7 @@ app = create_app()
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index2.html')
+    return render_template('index.html')
 
 @app.route('/about', methods=['GET'])
 def about():
