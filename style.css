@@ -64,6 +64,10 @@ nav ul li a {
 }
 nav ul li a:hover {
     color: #8F1B15;
+}
+nav ul li .nav-user {
+    color: #F3A770;
+    font-size: 18px;
 } 
 
 body {
