@@ -78,8 +78,27 @@ function addList() {
     //Adding into HTML list
     const ul = document.getElementById('theList');
     const li = document.createElement('li');
+    const button = document.createElement('button');
+
+    button.innerHTML = number.toString();
+    button.id = 'button'+number;
+    button.value = number.toString();
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.target.value
+        document.getElementById('theList').childNodes[
+            e.target.value-1
+            ].remove();
+
+    })
+
+
     li.textContent = '['+latitude+', '+longitude+']';
     ul.appendChild(li);
+    li.appendChild(button);
+}
+function ana(){
+
 }
 function makePolygon() {
     if(polygon!=null){
@@ -107,6 +126,7 @@ function clearList() {
     //Removes the whole HTML list
     const ul = document.getElementById('theList');
     const numberOfChildren = ul.children.length;
+
     for (let i = 0; i < numberOfChildren; i++) {
         const lastItem = ul.lastElementChild;
         lastItem.remove();
@@ -131,7 +151,6 @@ function makeCircle() {
         circle.removeFrom(map);
     circle = L.circle([latitude, longitude], {radius : buffer});
     circle.addTo(map);
-
 }
 
 
@@ -145,7 +164,7 @@ function goToLocation() {
     if (check(latitude, longitude))
         return;
 
-    // Move map
+    // Move mapj
     map.setView([latitude, longitude], 15);
 
     // Move marker
@@ -254,6 +273,9 @@ function importCords(){
 
         if (first!==0 && second!==0){
             let cord = [first,second];
+            if(isNaN(first)){
+                return;
+            }
             list.push(cord);
             first = 0;
             second = 0;
