@@ -1,129 +1,108 @@
-/* 
-  --dark-red: #390C06;
-  --red: #8F1B15;
-  --peach: #F3A770;
-  --brown: #4F2B1B;
-  --dark-brown: #1A130D;
-  */
-
-
-  /* color coords 2 
-   --gold: #C99A2E;
-    --dark-gold: #A87518;
-
-    --brown: #745A3A;
-    --light-brown: #89714D;
-    --tan: #A59174;
-    --dark-brown: #4A3821;
-    --very-dark-brown: #281D0D;
-
-    --black: #000000;
-    --dark-gray: #212121;
-    --gray: #2D2B28;
-    --charcoal: #262422;
-
-    --cream: #D6C39B;
-    --white: #FFFFFF;
-  */
-
-h1 {
-    text-align: center;
-    color: #390C06;
-    font-family: 'Arial', sans-serif;
-}
-nav {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    width: 100%;
-    padding: 18px 0;
-
-    backdrop-filter: blur(12px);
-
-    background: #1A130D;
-
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-
-    text-align: center;
-}
-nav ul {
-    list-style: none;
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
-nav ul li {
-    display: inline-block;
-    margin: 0 15px;
+
+:root {
+    /* Book width: never bigger than 800px, and small enough that
+       the open spread (2x width) fits horizontally and the height fits vertically */
+    --book-w: min(800px, 42vw, 70vh);
+    --book-h: calc(var(--book-w) * 9 / 8); /* keeps your 800x900 ratio */
 }
-nav ul li a {
-    text-decoration: none;
-    color: #F3A770;
-    font-size: 18px;
-    transition: color 0.3s;
-}
-nav ul li a:hover {
-    color: #8F1B15;
-} 
 
 body {
-    background-color: #F3A770;
-    font-family: 'Arial', sans-serif;
-}
-label {
-  display: inline-block;
-  font:
-    1rem "Fira Sans",
-    sans-serif;
-}
-
-input,
-label {
-  margin: 0.4rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-
-}
-input {
-  padding: 0.4rem;
-  border: 1px solid #8F1B15;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-form {
-  max-width: 400px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #F3A770;
-  border: 1px solid #8F1B15;
-  border-radius: 8px;
-}
-.map-container {
+    min-height: 100vh;
+    overflow: hidden; /* the open book shifts sideways, avoid scrollbars */
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    width: 100%;
-    margin: 20px auto;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
 }
 
+/* Book */
+.book {
+    position: relative;
+    width: var(--book-w);
+    height: var(--book-h);
+    perspective: calc(var(--book-w) * 2.5);
+    transition: transform 0.8s ease-in-out;
+}
+
+/* 50% of its own width = 400px at full size, scales automatically */
+.book.open,
+.book.end {
+    transform: translateX(50%);
+}
+
+/* Pages */
+.page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+}
+
+/* Front and back */
+.front,
+.back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    backface-visibility: hidden;
+}
+
+.front { transform: rotateY(0deg); }
+.back  { transform: rotateY(180deg); }
+
+/* Page content: font scales with the book */
+.front-content,
+.back-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: calc(var(--book-w) * 0.03);
+    color: #333;
+}
+
+/* Flipping */
+.page.flipped {
+    transform: rotateY(-180deg);
+}
+
+/* Page stacking */
+#p1 { z-index: 4; }
+#p2 { z-index: 3; }
+#p3 { z-index: 2; }
+#p4 { z-index: 1; }
+
 form {
-    width: 300px;
-    margin: 0;
+    width: 100%;
+    height: 100%;
+    margin: 20px auto;
     padding: 20px;
     background-color: #F3A770;
     border: 1px solid #8F1B15;
     border-radius: 8px;
     box-sizing: border-box;
 }
-
 #map {
-    height: 500px;
-    width: 600px;
-    max-width: 60%;
-    margin: 0;
-    border: 2px solid #1A130D;
+    width: 100%;
+    height: 100%;
 }
 
 .coordinate-inputs {
@@ -135,11 +114,29 @@ form {
 .coordinate-field {
     width: 100%;
 }
-.coordinate-inputs {
-    flex-direction: column;
-    gap: 10px;
+
+
+/* Buttons */
+button {
+    position: fixed;
+    z-index: 100;
+    padding: clamp(6px, 1.2vh, 12px) clamp(10px, 1.6vw, 20px);
+    border: none;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+    font-size: clamp(12px, 1.6vh, 16px);
+    cursor: pointer;
 }
 
-.coordinate-field {
-    width: 100%;
-}
+button:hover    { background-color: #555; }
+button:disabled { background-color: #aaa; cursor: not-allowed; }
+
+#Prev-btn { left: 10px;  bottom: 5vh; }
+#Next-btn { right: 10px; bottom: 5vh; }
+
+/* Page buttons stacked in the top-right corner, spaced by viewport height */
+#Button-1 { right: 10px; top: calc(10px + 0 * 6vh); }
+#Button-2 { right: 10px; top: calc(10px + 1 * 6vh); }
+#Button-3 { right: 10px; top: calc(10px + 2 * 6vh); }
+#Button-4 { right: 10px; top: calc(10px + 3 * 6vh); }

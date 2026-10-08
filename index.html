@@ -5,25 +5,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Potshed</title>
-    <script type="module" src="https://js.arcgis.com/5.1/"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
+    <script src="book.js" defer></script>
 </head>
 
 <body>
-        <h1 class="map-title">Potsherd Map</h1>
-    <nav>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
-    <div class="map-container">
+
+    <button id="Prev-btn">Prev</button>
+
+    <div class="book" id="book">
+
+        <div class="page" id="p1">
+            <div class="front">
+                <div class="front-content">
+                    <h2>Front 1</h2>
+                </div>
+            </div>
+            <div class="back">
+                <div class="back-content">
+
     <form id="coordinate-form">
-    <label for="latitude">Enter Latitude:</label>
+                     <label for="latitude">Enter Latitude:</label>
 <input
   type="text"
   id="latitude"
@@ -47,10 +51,56 @@
   placeholder="Enter Longitude"/>
 <button class="submit-button" id="submit-button" type="button">Submit</button>
     </form>
-    <div id="map"></div>
-</div>
-<script src="script.js"></script>
-</body>
+                </div>
+            </div>
+        </div>
 
+        <div class="page" id="p2">
+            <div class="front">
+                <div class="front-content">
+                       <div id="map"></div>
+                </div>
+            </div>
+            <div class="back">
+                <div class="back-content">
+                    <h2>Back 2</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="p3">
+            <div class="front">
+                <div class="front-content">
+                    <h2>Front 3</h2>
+                </div>
+            </div>
+            <div class="back">
+                <div class="back-content">
+                    <h2>Back 3</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="p4">
+            <div class="front">
+                <div class="front-content">
+                    <h2>Front 4</h2>
+                </div>
+            </div>
+            <div class="back">
+                <div class="back-content">
+                    <h2>Back 4</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <button id="Button-1">back 1</button>
+    <button id="Button-2">back 2</button>
+    <button id="Button-3">back 3</button>
+    <button id="Button-4">back 4</button>
+    <button id="Next-btn">Next</button>
+    <script src="script.js" defer></script>
+</body>
 
 </html>
