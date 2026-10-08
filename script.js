@@ -75,6 +75,7 @@ function addList() {
     let number = markerList.length+1;
     marker.bindPopup(number.toString()).openPopup();
     markerList.push(marker);
+
     //Adding into HTML list
     const ul = document.getElementById('theList');
     const li = document.createElement('li');
@@ -83,22 +84,33 @@ function addList() {
     button.innerHTML = number.toString();
     button.id = 'button'+number;
     button.value = number.toString();
+    //button Function
     button.addEventListener('click', function(e) {
         e.preventDefault();
         e.target.value
-        document.getElementById('theList').childNodes[
-            e.target.value-1
-            ].remove();
-
+        document.getElementById('theList').childNodes[e.target.value-1].remove();
+        formatList(e.target.value-1)
     })
-
 
     li.textContent = '['+latitude+', '+longitude+']';
     ul.appendChild(li);
     li.appendChild(button);
 }
-function ana(){
-
+function formatList(number){
+    const ul = document.getElementById('theList');
+    const numberOfChildren = ul.children.length;
+    for (let i = number; i < numberOfChildren; i++) {
+        ul.childNodes[i].lastChild.innerHTML = (i+1).toString();
+        ul.childNodes[i].lastChild.value = (i+1).toString();
+    }
+    //number is 1
+    markerList[number].removeFrom(map);
+    for (let i = number; i < markerList.length; i++) {
+        markerList[i].bindPopup(i.toString());
+    }
+    //remove from markerList
+    markerList.splice(number,1);
+    polygonList.splice(number,1);
 }
 function makePolygon() {
     if(polygon!=null){

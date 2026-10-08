@@ -143,3 +143,8 @@ form {
 .coordinate-field {
     width: 100%;
 }
+#theList{
+    list-style-type: none;
+    padding: 0;
+    margin: 10px;
+}
