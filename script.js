@@ -18,25 +18,56 @@ marker.bindPopup('Current location').openPopup();
 // Get HTML elements
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
+latitudeInput.value = 34.2454653;
+longitudeInput.value =-118.5286373;
 const submitButton = document.getElementById('submit-button');
 const convertButton = document.getElementById('convert-button');
+
 const output_easting = document.getElementById('easting');
 const output_northing = document.getElementById('northing');
 const output_zone = document.getElementById('zone');
+
 const buffer_input = document.getElementById('buffer');
 const make_circle = document.getElementById('circle-button');
-const latitudeList = document.getElementById('latitude-list');
-const longitudeList = document.getElementById('longitude-list');
+
 const addButton = document.getElementById('add-list');
 const makePolygonButton = document.getElementById('make-list');
 const clearPolygonButton = document.getElementById('clear-list');
 
+const importButton = document.getElementById('import-list');
+const importInput = document.getElementById('import-input');
+
+//Checks latitude and longitude before doing operations
+function check(latitude, longitude) {
+    // Check if values are numbers
+    if (isNaN(latitude) || isNaN(longitude)) {
+        alert('Please enter both latitude and longitude.');
+        return true;
+    }
+    // Check latitude
+    if (latitude < -90 || latitude > 90) {
+        alert('Latitude must be between -90 and 90.');
+        return  true;
+    }
+    // Check longitude
+    if (longitude < -180 || longitude > 180) {
+        alert('Longitude must be between -180 and 180.');
+        return true;
+    }
+    return false;
+}
+
+//Polygon maker
 let polygonList = [];
 let markerList = [];
 let polygon=null;
+
 function addList() {
-    const latitude = parseFloat(latitudeList.value);
-    const longitude = parseFloat(longitudeList.value);
+    const latitude = parseFloat(latitudeInput.value);
+    const longitude = parseFloat(longitudeInput.value);
+    if (check(latitude, longitude))
+        return;
+
     let cord = [latitude, longitude];
     polygonList.push(cord);
     let marker = L.marker([latitude, longitude]);
@@ -44,8 +75,16 @@ function addList() {
     let number = markerList.length+1;
     marker.bindPopup(number.toString()).openPopup();
     markerList.push(marker);
+    //Adding into HTML list
+    const ul = document.getElementById('theList');
+    const li = document.createElement('li');
+    li.textContent = '['+latitude+', '+longitude+']';
+    ul.appendChild(li);
 }
 function makePolygon() {
+    if(polygon!=null){
+        polygon.removeFrom(map);
+    }
     polygon = L.polygon(polygonList);
     polygon.addTo(map);
     map.fitBounds(polygon.getBounds());
@@ -55,50 +94,56 @@ function clearList() {
         polygon.removeFrom(map);
         polygon = null;
     }
+    if (circle!=null){
+        circle.removeFrom(map);
+        circle = null;
+    }
 
     polygonList = [];
     for (let i = 0; i < markerList.length; i++) {
         markerList[i].removeFrom(map);
     }
     markerList = [];
+    //Removes the whole HTML list
+    const ul = document.getElementById('theList');
+    const numberOfChildren = ul.children.length;
+    for (let i = 0; i < numberOfChildren; i++) {
+        const lastItem = ul.lastElementChild;
+        lastItem.remove();
+    }
 }
 
-addButton.addEventListener('click', addList);
-makePolygonButton.addEventListener('click', makePolygon);
-clearPolygonButton.addEventListener('click',clearList);
 
 
 
+//Circle Maker
+let circle = null;
 function makeCircle() {
     const latitude = parseFloat(latitudeInput.value);
     const longitude = parseFloat(longitudeInput.value);
     const buffer = parseFloat(buffer_input.value);
+    if (isNaN(buffer))
+        return;
+    if (check(latitude, longitude)) {
+        return;
+    }
+    if (circle!=null)
+        circle.removeFrom(map);
+    circle = L.circle([latitude, longitude], {radius : buffer});
+    circle.addTo(map);
 
-    L.circle([latitude, longitude], {radius : buffer}).addTo(map);
 }
+
+
+
 // Function to move the map
 function goToLocation() {
 
     const latitude = parseFloat(latitudeInput.value);
     const longitude = parseFloat(longitudeInput.value);
 
-    // Check if values are numbers
-    if (isNaN(latitude) || isNaN(longitude)) {
-        alert('Please enter both latitude and longitude.');
+    if (check(latitude, longitude))
         return;
-    }
-
-    // Check latitude
-    if (latitude < -90 || latitude > 90) {
-        alert('Latitude must be between -90 and 90.');
-        return;
-    }
-
-    // Check longitude
-    if (longitude < -180 || longitude > 180) {
-        alert('Longitude must be between -180 and 180.');
-        return;
-    }
 
     // Move map
     map.setView([latitude, longitude], 15);
@@ -115,22 +160,7 @@ function goToLocation() {
         .openPopup();
 }
 
-// Submit button
-submitButton.addEventListener('click', goToLocation);
 
-// Press Enter in latitude input
-latitudeInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        goToLocation();
-    }
-});
-
-// Press Enter in longitude input
-longitudeInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        goToLocation();
-    }
-});
 
 function convert(){
     let latitude = parseFloat(latitudeInput.value);
@@ -154,7 +184,7 @@ function convert(){
     if (latitude < 0)
         south_hemisphere = true
 
-    z = Math.floor((longitude+180)/6)+1;
+    const z = Math.floor((longitude+180)/6)+1;
     console.log("z is "+z);
     let central_meridian = 6 * z - 183;
     console.log("central_meridian is "+central_meridian);
@@ -196,6 +226,75 @@ function convert(){
     output_northing.value = northing;
     output_zone.value = z+zone_letter;
 }
-convertButton.addEventListener('click', convert);
-make_circle.addEventListener('click', makeCircle);
 
+function importCords(){
+    //whole string: [lat, long], [latitude, longitude]
+    let whole = importInput.value
+
+    let first;
+    let second;
+
+    let pointer;
+    let list=[];
+    //start and end cannot be true at the same time
+    for (let i = 0; i < whole.length; i++) {
+        if (whole[i] === '['){
+            pointer = i+1;
+            continue;
+        }
+
+        if(whole[i]===','){
+            first = parseFloat(whole.slice(pointer, i));
+            pointer = i +1;
+            continue;
+        }
+        if (whole[i]===']'){
+            second = parseFloat(whole.slice(pointer, i));
+        }
+
+        if (first!==0 && second!==0){
+            let cord = [first,second];
+            list.push(cord);
+            first = 0;
+            second = 0;
+        }
+    }
+    list.shift();
+    if(polygon!=null)
+        clearList();
+    polygon = L.polygon(list);
+    polygon.addTo(map);
+    map.fitBounds(polygon.getBounds());
+}
+
+
+
+
+// Submit button
+submitButton.addEventListener('click', goToLocation);
+
+// Press Enter in latitude input
+latitudeInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        goToLocation();
+    }
+});
+
+// Press Enter in longitude input
+longitudeInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        goToLocation();
+    }
+});
+//Convert()
+convertButton.addEventListener('click', convert);
+//makeCircle()
+make_circle.addEventListener('click', makeCircle);
+//addList()
+addButton.addEventListener('click', addList);
+//makePolygon()
+makePolygonButton.addEventListener('click', makePolygon);
+//clearList()
+clearPolygonButton.addEventListener('click',clearList);
+//importCords()
+importButton.addEventListener('click',importCords)
