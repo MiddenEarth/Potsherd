@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, url_for, render_template
-import urllib.parse
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 import logging
@@ -16,12 +15,21 @@ def create_app():
     load_dotenv()
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-    app.config['MYSQL_DATABASE'] = os.getenv('MYSQL_DATABASE')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + urllib.parse.quote_plus(os.getenv('MYSQL_USER')) + ':' + urllib.parse.quote_plus(os.getenv('MYSQL_PASSWORD')) + '@' + os.getenv('MYSQL_HOST') + '/' + urllib.parse.quote_plus(os.getenv('MYSQL_DATABASE'))
-    #print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")  # Debugging line
+
+    # Supabase gives you one connection string instead of four separate values.
+    database_url = os.getenv('DATABASE_URL')
+    if not database_url:
+        raise RuntimeError(
+            'DATABASE_URL is not set. In Supabase click Connect, copy the '
+            'Session pooler URI, and put it in your .env file.'
+        )
+    # Some hosts hand out "postgres://", which SQLAlchemy rejects.
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    # Supabase closes idle connections; this tests each one before using it.
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_pre_ping': True}
 
     db.init_app(app)
     login_manager.init_app(app)
