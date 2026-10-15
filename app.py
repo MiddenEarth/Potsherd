@@ -8,7 +8,7 @@ app = create_app()
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html')
+    return render_template('index2.html')
 
 @app.route('/about', methods=['GET'])
 def about():
@@ -60,6 +60,56 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        user = User.query.filter_by(email=email).first()
+
+        # Same message whether or not the email exists, so this page can't
+        # be used to check which emails are registered
+        if user:
+            token = user.generate_reset_token()
+            db.session.commit()
+
+            # "Sending the email" — for now this just prints the link to
+            # your terminal. Swap this out for a real email service later.
+            reset_url = url_for('reset_password', token=token, _external=True)
+            print(f'\nPASSWORD RESET LINK for {user.email}:\n{reset_url}\n')
+
+        flash('If that email is registered, a reset link has been sent.')
+        return render_template('forgot_password.html')
+
+    return render_template('forgot_password.html')
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = User.query.filter_by(reset_token=token).first()
+
+    if user is None or not user.verify_reset_token(token):
+        flash('That reset link is invalid or has expired.')
+        return redirect(url_for('forgot_password'))
+
+    if request.method == 'POST':
+        password = request.form['password']
+        confirm = request.form['confirm_password']
+
+        if password != confirm:
+            flash('Passwords do not match.')
+            return render_template('reset_password.html', token=token)
+
+        if len(password) < 8:
+            flash('Password must be at least 8 characters.')
+            return render_template('reset_password.html', token=token)
+
+        user.set_password(password)
+        user.clear_reset_token()
+        db.session.commit()
+        flash('Your password has been reset. You can log in now.')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
 
 @app.route('/logout')
 @login_required
