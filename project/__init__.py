@@ -24,8 +24,10 @@ def create_app():
             'Session pooler URI, and put it in your .env file.'
         )
     # Some hosts hand out "postgres://", which SQLAlchemy rejects.
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    for prefix in ('postgres://', 'postgresql://'):
+        if database_url.startswith(prefix):
+            database_url = 'postgresql+psycopg2://' + database_url[len(prefix):]
+            break
 
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     # Supabase closes idle connections; this tests each one before using it.
