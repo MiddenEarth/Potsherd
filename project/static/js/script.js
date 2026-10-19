@@ -30,21 +30,43 @@ const longitudeList = document.getElementById('longitude-list');
 const addButton = document.getElementById('add-list');
 const makePolygonButton = document.getElementById('make-list');
 const clearPolygonButton = document.getElementById('clear-list');
+const theList = document.getElementById('theList');
+const copyListButton = document.getElementById('copy-list');
+const importInput = document.getElementById('import-input');
+const importListButton = document.getElementById('import-list');
 
 let polygonList = [];
 let markerList = [];
 let polygon=null;
 
-function addList() {
-    const latitude = parseFloat(latitudeList.value);
-    const longitude = parseFloat(longitudeList.value);
-    let cord = [latitude, longitude];
-    polygonList.push(cord);
+// Show the points added so far in the <ul id="theList">
+function renderList() {
+    theList.innerHTML = '';
+    polygonList.forEach(function (point, i) {
+        const li = document.createElement('li');
+        li.textContent = (i + 1) + ': ' + point[0] + ', ' + point[1];
+        theList.appendChild(li);
+    });
+}
+
+function addPoint(latitude, longitude) {
+    polygonList.push([latitude, longitude]);
     let marker = L.marker([latitude, longitude]);
     marker.addTo(map);
     let number = markerList.length+1;
     marker.bindPopup(number.toString()).openPopup();
     markerList.push(marker);
+    renderList();
+}
+
+function addList() {
+    const latitude = parseFloat(latitudeList.value);
+    const longitude = parseFloat(longitudeList.value);
+    if (isNaN(latitude) || isNaN(longitude)) {
+        alert('Enter a valid latitude and longitude to add.');
+        return;
+    }
+    addPoint(latitude, longitude);
 }
 
 function makePolygon() 
@@ -67,11 +89,56 @@ function clearList()
         markerList[i].removeFrom(map);
     }
     markerList = [];
+    renderList();
 }
 
 addButton.addEventListener('click', addList);
 makePolygonButton.addEventListener('click', makePolygon);
 clearPolygonButton.addEventListener('click',clearList);
+
+// Copy the current list to the clipboard as JSON: [[lat, lng], [lat, lng], ...]
+async function copyList() {
+    const text = JSON.stringify(polygonList);
+    try {
+        await navigator.clipboard.writeText(text);
+    } catch (err) {
+        window.prompt('Copy this list:', text);
+    }
+}
+
+// Replace the current list with one pasted in the same JSON format
+function importList() {
+    let coords;
+    try {
+        coords = JSON.parse(importInput.value);
+    } catch (err) {
+        alert('Could not read that list. Use the format [[lat, lng], [lat, lng]].');
+        return;
+    }
+    const valid = Array.isArray(coords) && coords.length > 0 && coords.every(function (c) {
+        return Array.isArray(c) && c.length === 2 &&
+            Number.isFinite(c[0]) && Number.isFinite(c[1]) &&
+            c[0] >= -90 && c[0] <= 90 && c[1] >= -180 && c[1] <= 180;
+    });
+    if (!valid) {
+        alert('Each entry must be [latitude, longitude] within valid ranges.');
+        return;
+    }
+    clearList();
+    coords.forEach(function (c) { addPoint(c[0], c[1]); });
+    map.fitBounds(L.latLngBounds(coords), { maxZoom: 15 });
+    importInput.value = '';
+}
+
+copyListButton.addEventListener('click', copyList);
+importListButton.addEventListener('click', importList);
+
+// The circle form has a single text box, so Enter would submit it and reload
+// the page. Stop that, and make Enter draw the circle instead.
+document.querySelectorAll('form').forEach(function (f) {
+    f.addEventListener('submit', function (e) { e.preventDefault(); });
+});
+document.getElementById('circle-form').addEventListener('submit', makeCircle);
 
 
 function makeCircle() 
@@ -79,6 +146,11 @@ function makeCircle()
     const latitude = parseFloat(latitudeInput.value);
     const longitude = parseFloat(longitudeInput.value);
     const buffer = parseFloat(buffer_input.value);
+
+    if (isNaN(latitude) || isNaN(longitude) || isNaN(buffer)) {
+        alert('Enter a latitude, longitude and buffer first.');
+        return;
+    }
 
     L.circle([latitude, longitude], {radius : buffer}).addTo(map);
 }
