@@ -91,8 +91,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #4F2B1B;;
-    border: 1px solid #000000;
     backface-visibility: hidden;
 }
 
@@ -107,21 +105,35 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-        background-color:#4F2B1B;
-    font-size: calc(var(--book-w) * 0.03);
-    color: #333;
 }
-
+h2 {
+    font-size: clamp(24px, 4vw, 48px);
+    color: #A87518;
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
 /* Flipping */
 .page.flipped {
     transform: rotateY(-180deg);
 }
 
 /* Page stacking */
-#p1 { z-index: 4; }
-#p2 { z-index: 3; }
-#p3 { z-index: 2; }
-#p4 { z-index: 1; }
+#p1 { z-index: 4; 
+    background: url('images/cover.jpg') ;
+    background-size: cover;
+}
+#p2 { z-index: 3;
+    background: url('images/pages.jpg') ;
+    background-size: cover;}
+#p3 { z-index: 2; 
+ background: url('images/pages.jpg') ;
+    background-size: cover;}
+#p4 { z-index: 1; 
+    background: url('images/cover.jpg') ;
+    background-size: cover;
+
+}
 
 #p1 .back-content {
     flex-direction: column;
@@ -185,7 +197,7 @@ button {
     padding: clamp(6px, 1.2vh, 12px) clamp(10px, 1.6vw, 20px);
     border: none;
     border-radius: 5px;
-    background-color: #333;
+    background-color: #8F1B15;
     color: white;
     font-size: clamp(12px, 1.6vh, 16px);
     cursor: pointer;
