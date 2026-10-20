@@ -1,5 +1,7 @@
-
-
+//********************************************************************************//
+//Elements//
+//*******************************************************************************//
+// Button elements
 const prevBtn = document.getElementById("Prev-btn");
 const nextBtn = document.getElementById("Next-btn");
 const pg1 = document.getElementById("Button-1");
@@ -7,6 +9,7 @@ const pg2 = document.getElementById("Button-2");
 const pg3 = document.getElementById("Button-3");
 const pg4 = document.getElementById("Button-4");
 
+// page elements
 const pages = [
     document.getElementById("p1"),
     document.getElementById("p2"),
@@ -14,20 +17,28 @@ const pages = [
     document.getElementById("p4")
 ];
 
+//********************************************************************************//
+//Page state//
+//*******************************************************************************//
+
+
+//establish open book
 let currentPage = 0;
 function openBook() {
 book.classList.add("open");
 book.classList.remove("end");
     
 }
+// establish closed book
 function closeBook() {
    book.classList.remove("open", "end");   
 }
+//establish closed book at end
 function closeBookAtEnd() {
   book.classList.remove("open");
   book.classList.add("end");
 }
-
+// Update button states based on current page
 function updateButtons() {
   prevBtn.disabled = currentPage === 0;
   nextBtn.disabled = currentPage === pages.length;
@@ -52,7 +63,10 @@ function setPageOrder() {
     });
 }
 
-// Update buttons
+//********************************************************************************//
+//Page buttons//
+//*******************************************************************************//
+
 
 
 // Next page
@@ -66,6 +80,7 @@ nextBtn.addEventListener("click", () => {
     }
 });
 
+
 // Previous page
 prevBtn.addEventListener("click", () => {
     if (currentPage > 0) {
@@ -77,6 +92,7 @@ prevBtn.addEventListener("click", () => {
         updateButtons();
     }
 });
+// Page 1 buttons
 pg1.addEventListener("click", () => {
     currentPage = 1;
     pages.forEach((page, index) => {
@@ -89,7 +105,7 @@ pg1.addEventListener("click", () => {
     setPageOrder();
     updateButtons();
 });
-
+// Page 2 buttons
 pg2.addEventListener("click", () => {
     currentPage = 2;
     pages.forEach((page, index) => {
@@ -102,7 +118,7 @@ pg2.addEventListener("click", () => {
     setPageOrder();
     updateButtons();
 });
-
+//  Page 3 buttons
 pg3.addEventListener("click", () => {
     currentPage = 3;
     pages.forEach((page, index) => {
@@ -115,7 +131,7 @@ pg3.addEventListener("click", () => {
     setPageOrder();
     updateButtons();
 });
-
+// Page 4 buttons
 pg4.addEventListener("click", () => {
     currentPage = 4;
     pages.forEach((page, index) => {

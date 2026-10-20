@@ -1,32 +1,27 @@
-/* 
-  --dark-red: #390C06;
-  --red: #8F1B15;
-  --peach: #F3A770;
-  --brown: #4F2B1B;
-  --dark-brown: #1A130D;
+/* Color pallete
+--dark-red: #390C06;
+--red: #8F1B15;
+--peach: #F3A770;
+--brown: #4F2B1B;
+--dark-brown: #1A130D;
+--gold: #C99A2E;
+--dark-gold: #A87518;
+--brown: #745A3A;
+--light-brown: #89714D;
+--tan: #A59174;
+--dark-brown: #4A3821;
+--very-dark-brown: #281D0D;
+--black: #000000;
+--dark-gray: #212121;
+--gray: #2D2B28;
+--charcoal: #262422;
+--cream: #D6C39B;
+--white: #FFFFFF;
   */
 
-
-  /* color coords 2 
-   --gold: #C99A2E;
-    --dark-gold: #A87518;
-
-    --brown: #745A3A;
-    --light-brown: #89714D;
-    --tan: #A59174;
-    --dark-brown: #4A3821;
-    --very-dark-brown: #281D0D;
-
-    --black: #000000;
-    --dark-gray: #212121;
-    --gray: #2D2B28;
-    --charcoal: #262422;
-
-    --cream: #D6C39B;
-    --white: #FFFFFF;
-  */
-
-
+/**********************************************************************************
+Root / Body / Global Styles
+***********************************************************************************/
 * {
     margin: 0;
     padding: 0;
@@ -34,23 +29,29 @@
 }
 
 :root {
-    /* Book width: never bigger than 800px, and small enough that
-       the open spread (2x width) fits horizontally and the height fits vertically */
     --book-w: min(800px, 42vw, 70vh);
-    --book-h: calc(var(--book-w) * 9 / 8); /* keeps your 800x900 ratio */
+    --book-h: calc(var(--book-w) * 9 / 8); 
 }
 
 body {
     min-height: 100vh;
-    overflow: hidden; /* the open book shifts sideways, avoid scrollbars */
+    overflow: hidden; 
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Poppins', sans-serif;
     background-color: #2D2B28;
 }
-
-/* Book */
+h2 {
+    font-size: clamp(24px, 4vw, 48px);
+    color: #A87518;
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
+/**********************************************************************************
+Book
+***********************************************************************************/
 .book {
     position: relative;
     width: var(--book-w);
@@ -58,14 +59,42 @@ body {
     perspective: calc(var(--book-w) * 2.5);
     transition: transform 0.8s ease-in-out;
 }
-
-/* 50% of its own width = 400px at full size, scales automatically */
 .book.open,
 .book.end {
     transform: translateX(50%);
 }
 
-/* Pages */
+/**********************************************************************************
+Front and Back
+***********************************************************************************/
+.front,
+.back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backface-visibility: hidden;
+}
+/*flipping*/
+.front { transform: rotateY(0deg); }
+.back  { transform: rotateY(180deg); }
+
+.front-content,
+.back-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/**********************************************************************************
+Pages
+***********************************************************************************/
 .page {
     position: absolute;
     width: 100%;
@@ -80,39 +109,6 @@ body {
     border: 1px solid #ddd;
 }
 
-/* Front and back */
-.front,
-.back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backface-visibility: hidden;
-}
-
-.front { transform: rotateY(0deg); }
-.back  { transform: rotateY(180deg); }
-
-/* Page content: font scales with the book */
-.front-content,
-.back-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-h2 {
-    font-size: clamp(24px, 4vw, 48px);
-    color: #A87518;
-    text-align: center;
-    position: relative;
-    padding: 20px;
-}
 /* Flipping */
 .page.flipped {
     transform: rotateY(-180deg);
@@ -143,15 +139,10 @@ h2 {
     padding: 16px;
     overflow-y: auto;
 }
-.map-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    width: 100%;
-    margin: 20px auto;
-}
-/* Forms (single definition, remove the other form blocks) */
+
+/******************************************************
+Coordinate Input Form 
+******************************************************/
 form {
     display: flex;
     flex-direction: column;
@@ -165,12 +156,21 @@ form {
     box-sizing: border-box;
 }
 
-
+/******************************************************
+Map
+******************************************************/
 #map {
     width: 100%;
     height: 100%;
 }
-
+.map-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    margin: 20px auto;
+}
 .coordinate-inputs {
     display: flex;
     flex-direction: column;
@@ -181,7 +181,9 @@ form {
     width: 100%;
 }
 
-
+/******************************************************
+Buttons 
+******************************************************/
 
 #Prev-btn,
 #Next-btn,
