@@ -1,0 +1,222 @@
+/* Color pallete
+--dark-red: #390C06;
+--red: #8F1B15;
+--peach: #F3A770;
+--brown: #4F2B1B;
+--dark-brown: #1A130D;
+--gold: #C99A2E;
+--dark-gold: #A87518;
+--brown: #745A3A;
+--light-brown: #89714D;
+--tan: #A59174;
+--dark-brown: #4A3821;
+--very-dark-brown: #281D0D;
+--black: #000000;
+--dark-gray: #212121;
+--gray: #2D2B28;
+--charcoal: #262422;
+--cream: #D6C39B;
+--white: #FFFFFF;
+  */
+
+/**********************************************************************************
+Root / Body / Global Styles
+***********************************************************************************/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --book-w: min(800px, 42vw, 70vh);
+    --book-h: calc(var(--book-w) * 9 / 8); 
+}
+
+body {
+    min-height: 100vh;
+    overflow: hidden; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    background-color: #2D2B28;
+}
+h2 {
+    font-size: clamp(24px, 4vw, 48px);
+    color: #A87518;
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
+/**********************************************************************************
+Book
+***********************************************************************************/
+.book {
+    position: relative;
+    width: var(--book-w);
+    height: var(--book-h);
+    perspective: calc(var(--book-w) * 2.5);
+    transition: transform 0.8s ease-in-out;
+}
+.book.open,
+.book.end {
+    transform: translateX(50%);
+}
+
+/**********************************************************************************
+Front and Back
+***********************************************************************************/
+.front,
+.back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backface-visibility: hidden;
+}
+/*flipping*/
+.front { transform: rotateY(0deg); }
+.back  { transform: rotateY(180deg); }
+
+.front-content,
+.back-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/**********************************************************************************
+Pages
+***********************************************************************************/
+.page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+}
+
+/* Flipping */
+.page.flipped {
+    transform: rotateY(-180deg);
+}
+
+/* Page stacking */
+#p1 { z-index: 4; 
+    background: url('images/cover.jpg') ;
+    background-size: cover;
+}
+#p2 { z-index: 3;
+    background: url('images/pages.jpg') ;
+    background-size: cover;}
+#p3 { z-index: 2; 
+ background: url('images/pages.jpg') ;
+    background-size: cover;}
+#p4 { z-index: 1; 
+    background: url('images/cover.jpg') ;
+    background-size: cover;
+
+}
+
+#p1 .back-content {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+/******************************************************
+Coordinate Input Form 
+******************************************************/
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background-color: #F3A770;
+    border: 1px solid #8F1B15;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/******************************************************
+Map
+******************************************************/
+#map {
+    width: 100%;
+    height: 100%;
+}
+.map-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    margin: 20px auto;
+}
+.coordinate-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.coordinate-field {
+    width: 100%;
+}
+
+/******************************************************
+Buttons 
+******************************************************/
+
+#Prev-btn,
+#Next-btn,
+#Button-1,
+#Button-2,
+#Button-3,
+#Button-4 {
+    position: fixed;
+    z-index: 100;
+}
+/* All buttons share the look */
+button {
+    padding: clamp(6px, 1.2vh, 12px) clamp(10px, 1.6vw, 20px);
+    border: none;
+    border-radius: 5px;
+    background-color: #8F1B15;
+    color: white;
+    font-size: clamp(12px, 1.6vh, 16px);
+    cursor: pointer;
+}
+
+button:hover    { background-color: #555; }
+button:disabled { background-color: #aaa; cursor: not-allowed; }
+
+/* Buttons inside forms stay in normal flow */
+form button {
+    position: static;
+    align-self: flex-start;
+}
+
+#Prev-btn { left: 10px;  bottom: 5vh; }
+#Next-btn { right: 10px; bottom: 5vh; }
+#Button-1 { right: 10px; top: calc(10px + 0 * 6vh); }
+#Button-2 { right: 10px; top: calc(10px + 1 * 6vh); }
+#Button-3 { right: 10px; top: calc(10px + 2 * 6vh); }
+#Button-4 { right: 10px; top: calc(10px + 3 * 6vh); }
