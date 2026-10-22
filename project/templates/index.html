@@ -43,10 +43,10 @@
 
                     <form id="coordinate-form" novalidate>
                         <label for="latitude">Enter Latitude:</label>
-                        <input type="text" id="latitude" name="latitude" required minlength="4" maxlength="12" size="10" placeholder="e.g. 34.2399930"/>
+                        <input type="text" id="latitude" name="latitude" required size="10" placeholder="e.g. 34.2399930"/>
 
                         <label for="longitude">Enter Longitude:</label>
-                        <input type="text" id="longitude" name="longitude" required minlength="4" maxlength="12" size="10" placeholder="e.g. -118.5293180"/>
+                        <input type="text" id="longitude" name="longitude" required size="10" placeholder="e.g. -118.5293180"/>
 
                         <div class="button-row">
                             <button class="submit-button" id="submit-button" type="button">Submit</button>
@@ -68,12 +68,6 @@
                     </form>
 
                     <form id="polygon-form" novalidate>
-                        <label for="latitude-list">Enter Latitude:</label>
-                        <input type="text" id="latitude-list" name="latitude-list" required minlength="4" maxlength="12" size="10" placeholder="Enter Latitude"/>
-
-                        <label for="longitude-list">Enter Longitude:</label>
-                        <input type="text" id="longitude-list" name="longitude-list" required minlength="4" maxlength="12" size="10" placeholder="Enter Longitude"/>
-
                         <div class="button-row">
                             <button class="submit-button" id="add-list" type="button">Add coords</button>
                             <button class="submit-button" id="make-list" type="button">Make polygon</button>
