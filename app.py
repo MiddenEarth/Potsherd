@@ -60,29 +60,49 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/forgot-password', methods=['GET', 'POST'])
+# @app.route('/forgot-password', methods=['GET', 'POST'])
+# def forgot_password():
+#     if request.method == 'POST':
+#         email = request.form['email'].strip().lower()
+#         user = User.query.filter_by(email=email).first()
+
+#         # Same message whether or not the email exists, so this page can't
+#         # be used to check which emails are registered
+#         if user:
+#             token = user.generate_reset_token()
+#             db.session.commit()
+
+#             # "Sending the email" — for now this just prints the link to
+#             # your terminal. Swap this out for a real email service later.
+#             reset_url = url_for('reset_password', token=token, _external=True)
+#             print(f'\nPASSWORD RESET LINK for {user.email}:\n{reset_url}\n')
+
+#         flash('If that email is registered, a reset link has been sent.')
+#         return render_template('forgot_password.html')
+
+#     return render_template('forgot_password.html')
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email'].strip().lower()
         user = User.query.filter_by(email=email).first()
-
-        # Same message whether or not the email exists, so this page can't
-        # be used to check which emails are registered
         if user:
-            token = user.generate_reset_token()
+            user.reset_token = secrets.token_urlsafe(32)
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)
             db.session.commit()
-
-            # "Sending the email" — for now this just prints the link to
-            # your terminal. Swap this out for a real email service later.
-            reset_url = url_for('reset_password', token=token, _external=True)
-            print(f'\nPASSWORD RESET LINK for {user.email}:\n{reset_url}\n')
-
+            link = url_for('reset_password', token=user.reset_token, _external=True)
+            try:
+                send_email(user.email, 'Reset your Potsherd password',
+                           f'<p>Click to reset your password (valid 1 hour):</p><p><a href="{link}">{link}</a></p>',
+                           f'Reset your password (valid 1 hour): {link}')
+            except Exception:
+                app.logger.exception('reset email failed')
+        # same message whether or not the email exists, so nobody can probe for accounts
         flash('If that email is registered, a reset link has been sent.')
-        return render_template('forgot_password.html')
-
+        return redirect(url_for('login'))
     return render_template('forgot_password.html')
-
-
+    
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     user = User.query.filter_by(reset_token=token).first()
