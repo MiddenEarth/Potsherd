@@ -1,69 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>USDA Soil Survey Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USDA Soil Survey Circle</title>
+
+    <!-- Leaflet CSS -->
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            padding: 10px;
+            margin: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 85vh;
+        }
+    </style>
 </head>
+
 <body>
-<h2>USDA Soil Survey Test</h2>
-<button onclick="getSoilData()">Get Soil Data</button>
-<pre id="result">Click the button to start.</pre>
+<h2>USDA Soil Survey — 1 km Radius</h2>
+<div id="map"></div>
+
+<!-- Load Leaflet first -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Load the WMS clipping plugin -->
+<script src="https://cdn.jsdelivr.net/gh/amanchry/leaflet-wms-crop@latest/leaflet-wms-crop.js"></script>
 
 <script>
-    async function getSoilData() {
-        const result = document.getElementById("result");
-        result.textContent = "Loading soil data...";
+    // Center coordinates: [latitude, longitude]
+    const center = [34.26833935, -118.50189743];
+    const radius = 1000;
+    const earthRadius = 6371000;
 
-        const polygonWKT = `
-        POLYGON ((
-          -118.50189743 34.26833935,
-          -118.50109674 34.22326209,
-          -118.55536271 34.22258573,
-          -118.55619232 34.26766185,
-          -118.50189743 34.26833935
-        ))
-      `;
+    // Create the map
+    const map = L.map("map").setView(center, 14);
 
-        const query = `
-        SELECT DISTINCT
-          M.mukey,
-          M.musym,
-          M.muname,
-          L.areasymbol
-        FROM SDA_Get_Mukey_from_intersection_with_WktWgs84(
-          '${polygonWKT}'
-        ) AS S
-        JOIN mapunit AS M ON M.mukey = S.mukey
-        JOIN legend AS L ON L.lkey = M.lkey
-        ORDER BY M.musym
-      `;
-
-        try {
-            const response = await fetch(
-                "https://SDMDataAccess.sc.egov.usda.gov/Tabular/post.rest",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type":
-                            "application/x-www-form-urlencoded"
-                    },
-                    body: new URLSearchParams({
-                        query: query,
-                        format: "JSON"
-                    })
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("HTTP error: " + response.status);
-            }
-
-            const data = await response.json();
-            result.textContent = JSON.stringify(data, null, 2);
-
-        } catch (error) {
-            result.textContent = "Error: " + error.message;
+    // Background street map
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution: "&copy; OpenStreetMap contributors"
         }
+    ).addTo(map);
+
+    // Generate points around the 1,000-meter circle
+    const boundary = [];
+    const lat0 = center[0] * Math.PI / 180;
+    const lon0 = center[1] * Math.PI / 180;
+    const angularDistance = radius / earthRadius;
+
+    for (let i = 0; i <= 128; i++) {
+        const bearing = 2 * Math.PI * i / 128;
+
+        const lat = Math.asin(
+            Math.sin(lat0) * Math.cos(angularDistance) +
+            Math.cos(lat0) * Math.sin(angularDistance) *
+            Math.cos(bearing)
+        );
+
+        const lon = lon0 + Math.atan2(
+            Math.sin(bearing) * Math.sin(angularDistance) *
+            Math.cos(lat0),
+            Math.cos(angularDistance) -
+            Math.sin(lat0) * Math.sin(lat)
+        );
+
+        boundary.push([
+            lat * 180 / Math.PI,
+            lon * 180 / Math.PI
+        ]);
     }
+
+    // Add the clipped USDA soil layer
+    const soilLayer = L.tileLayer.wms.clipped(
+        "https://sdmdataaccess.sc.egov.usda.gov/Spatial2/service.ows",
+        {
+            layers: "MapunitPoly",
+            styles: "",
+            format: "image/png",
+            transparent: true,
+            version: "1.3.0"
+        },
+        boundary
+    ).addTo(map);
+
+    // Draw the blue circle outline
+    L.circle(center, {
+        radius: radius,
+        color: "blue",
+        weight: 3,
+        fill: false
+    }).addTo(map);
+
+    // Report loading errors
+    soilLayer.on("tileerror", function (event) {
+        console.error("USDA soil tile error:", event);
+    });
+
+    console.log("Map initialized.");
 </script>
 </body>
 </html>
