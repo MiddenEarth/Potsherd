@@ -10,6 +10,19 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+
+L.tileLayer.wms(
+    "https://sdmdataaccess.sc.egov.usda.gov/Spatial2/service.ows",
+    {
+        layers: "MapunitPoly",
+        format: "image/png",
+        transparent: true,
+        version: "1.3.0",
+        attribution: "USDA NRCS Soil Data Access"
+    }
+).addTo(map);
+
+
 // Create marker
 let marker = L.marker([lat, lng]).addTo(map);
 
