@@ -6,81 +6,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Potshed</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://kit.fontawesome.com/4510c2d852.js" crossorigin="anonymous"></script>
     <script src="book.js" defer></script>
 </head>
 
 <body>
+    
+    <div class="backgrounds">
+        <img src = "slideshow/caveofaltamira.webp"  class = "background-image">
+        <img src = "slideshow/chichenitza.webp"  class = "background-image">
+        <img src = "slideshow/colosseum.webp"  class = "background-image"> 
+        <img src = "slideshow/greatpyramid.webp"  class = "background-image">
+        <img src = "slideshow/greatwallofchina.webp" class = "background-image">
+        <img src = "slideshow/machupicchu.webp" class = "background-image">
+        <img src = "mohenjo-daro.webp" class = "background-image">
+        <img src = "slideshow/petra.webp" class = "background-image">
+        <img src = "slideshow/pompii.webp" class = "background-image">
+        <img src = "slideshow/stonehenge.webp" class = "background-image">
+        <img src = "slideshow/tombofqinshihuang.webp" class = "background-image">
+        <img src = "slideshow/valleyoffire.webp" class = "background-image">
+
+
+    </div>
+        
     <button id="Prev-btn">Prev</button>
     <div class="book" id="book">
-    <!-- *************************************************************************
+        <!-- *************************************************************************
     Front Cover 
     ************************************************************************* -->
-    <div class="page" id="p1">
+        <div class="page" id="p1">
             <div class="front">
                 <div class="front-content">
                     <h2>POTSHERD</h2>
                 </div>
             </div>
-    <!-- *************************************************************************
+            <!-- *************************************************************************
     Page 1 LAT LONG UTM
     ************************************************************************* -->
             <div class="back">
-            <div class="back-content">
+                <div class="back-content">
 
-    <form id="coordinate-form">
-            <label for="latitude">Enter Latitude:</label>
-            <input type="text" id="latitude" name="latitude" required minlength="4" maxlength="8" size="10" placeholder="Enter Latitude"/>
+                    <form id="coordinate-form">
+                        <label for="latitude">Enter Latitude:</label>
+                        <input type="text" id="latitude" name="latitude" required minlength="4" maxlength="8" size="10"
+                            placeholder="Enter Latitude" />
 
-            <label for="longitude">Enter Longitude:</label>
-            <input type="text" id="longitude" name="longitude" required minlength="4" maxlength="8" size="10" placeholder="Enter Longitude"/>
+                        <label for="longitude">Enter Longitude:</label>
+                        <input type="text" id="longitude" name="longitude" required minlength="4" maxlength="8"
+                            size="10" placeholder="Enter Longitude" />
 
-            <button class="submit-button" id="submit-button" type="button">Submit</button>
-            <button class="convert-button" id="convert-button" type="button">Convert</button><br>
+                        <button class="submit-button" id="submit-button" type="button">Submit</button>
+                        <button class="convert-button" id="convert-button" type="button">Convert</button><br>
 
-            <output name="zone" for="zone" id="zone"></output><br>
-            <output name="easting" for="easting" id="easting"></output><br>
-            <output name="northing" for="northing" id="northing"></output><br>
-        </form>
+                        <output name="zone" for="zone" id="zone"></output><br>
+                        <output name="easting" for="easting" id="easting"></output><br>
+                        <output name="northing" for="northing" id="northing"></output><br>
+                    </form>
 
-        <form id='circle-form'>
-            <label for="buffer">Enter Buffer for circle in meters</label>
-            <input type="text"
-                   id="buffer"
-                   name="buffer"
-                   required
-                   minlength="4"
-                   maxlength="8"
-                   size="10"
-                   placeholder="Enter circle_longitude"/>
-            <button class="submit-button" id="circle-button" type="button">make circle</button>
-        </form>
+                    <form id='circle-form'>
+                        <label for="buffer">Enter Buffer for circle in meters</label>
+                        <input type="text" id="buffer" name="buffer" required minlength="4" maxlength="8" size="10"
+                            placeholder="Enter circle_longitude" />
+                        <button class="submit-button" id="circle-button" type="button">make circle</button>
+                    </form>
 
-        <form id='polygon-form'>
-            <button class="submit-button" id="add-list" type="button">add coords</button>
-            <button class="submit-button" id="make-list" type="button">make polygon</button>
-            <button class="submit-button" id="clear-list" type="button">clear</button>
-            <ul id="theList"></ul>
-            <button class="copy-list" id="copy-list" type="button">copy list to clipboard</button>
-            <input type="text" id="import-input">
-            <button class="import-list" id="import-list" type="button">import list</button>
-        </form>
-        <!--Enter content here-->
+                    <form id='polygon-form'>
+                        <button class="submit-button" id="add-list" type="button">add coords</button>
+                        <button class="submit-button" id="make-list" type="button">make polygon</button>
+                        <button class="submit-button" id="clear-list" type="button">clear</button>
+                        <ul id="theList"></ul>
+                        <button class="copy-list" id="copy-list" type="button">copy list to clipboard</button>
+                        <input type="text" id="import-input">
+                        <button class="import-list" id="import-list" type="button">import list</button>
+                    </form>
+                    <!--Enter content here-->
                 </div>
             </div>
         </div>
-    <!-- *************************************************************************
+        <!-- *************************************************************************
     Page 2 MAP
     ************************************************************************* -->
         <div class="page" id="p2">
             <div class="front">
-                <div class="front-content">
-                       <div id="map"></div>
-                       <!--Enter content here-->
-                </div>
+  
+                    <div id="map"></div>
+                    <!--Enter content here-->
+
             </div>
-     <!-- *************************************************************************
+            <!-- *************************************************************************
     Page 3 
     ************************************************************************* -->
             <div class="back">
@@ -90,9 +107,9 @@
                 </div>
             </div>
         </div>
-    <!-- *************************************************************************
+        <!-- *************************************************************************
     Page 4
-    ************************************************************************* -->    
+    ************************************************************************* -->
         <div class="page" id="p3">
             <div class="front">
                 <div class="front-content">
@@ -100,9 +117,9 @@
                     <!--Enter content here-->
                 </div>
             </div>
-    <!-- *************************************************************************
+            <!-- *************************************************************************
     Page 6
-    ************************************************************************* -->    
+    ************************************************************************* -->
             <div class="back">
                 <div class="back-content">
                     <h2>Back 3</h2>
@@ -110,9 +127,9 @@
                 </div>
             </div>
         </div>
-    <!-- *************************************************************************
+        <!-- *************************************************************************
     Page 7
-    ************************************************************************* -->    
+    ************************************************************************* -->
         <div class="page" id="p4">
             <div class="front">
                 <div class="front-content">
@@ -120,19 +137,23 @@
                     <!--Enter content here-->
                 </div>
             </div>
-<!-- *************************************************************************
+            <!-- *************************************************************************
     Back Cover
-    ************************************************************************* -->    
+    ************************************************************************* -->
             <div class="back">
                 <div class="back-content">
                     <h2>About/Contact</h2>
+                    <h3>Contact:<h3>
+                        <i class="fa-brands fa-github" style="color: #C99A2E;"></i>
+                        <i class="fa-solid fa-envelope" style="color: #C99A2E"></i>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
     <!-- *************************************************************************
     Nav buttons
-    ************************************************************************* -->    
+    ************************************************************************* -->
     <button id="Button-1">Coords/Maps</button>
     <button id="Button-2">Dirt Stuff</button>
     <button id="Button-3">Tomato Stuff</button>

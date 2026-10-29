@@ -29,19 +29,65 @@ Root / Body / Global Styles
 }
 
 :root {
-    --book-w: min(800px, 42vw, 70vh);
-    --book-h: calc(var(--book-w) * 9 / 8); 
+    --book-w: min(800px, 50vw, 80vh);
+    --book-h: calc(var(--book-w) * 9 / 8);
 }
 
 body {
     min-height: 100vh;
-    overflow: hidden; 
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Poppins', sans-serif;
     background-color: #2D2B28;
 }
+/**********************************************************************************
+Animate background 
+***********************************************************************************/
+
+.background{
+height: 100%;
+width: 100%;
+position: relative;
+}
+
+@keyframes fade{
+    0%{
+        opacity: 1;
+    }
+    33%{
+        opacity: 0;
+    }
+    67%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+
+}
+.backgrounds img{
+
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: fade 9s ease-in-out infinite alternate;
+}
+img:nth-of-type(1){
+    animation-delay: 0s;
+}
+img:nth-of-type(2){
+    animation-delay: 3s;
+}
+img:nth-of-type(3){
+    animation-delay: 6s;
+}
+
+
 h2 {
     font-size: clamp(24px, 4vw, 48px);
     color: #A87518;
@@ -49,6 +95,14 @@ h2 {
     position: relative;
     padding: 20px;
 }
+h3{
+    font-size: clamp(12px, 2vw, 24px);
+    color: #A87518;
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
+
 /**********************************************************************************
 Book
 ***********************************************************************************/
@@ -59,6 +113,7 @@ Book
     perspective: calc(var(--book-w) * 2.5);
     transition: transform 0.8s ease-in-out;
 }
+
 .book.open,
 .book.end {
     transform: translateX(50%);
@@ -79,17 +134,27 @@ Front and Back
     align-items: center;
     backface-visibility: hidden;
 }
+
 /*flipping*/
-.front { transform: rotateY(0deg); }
-.back  { transform: rotateY(180deg); }
+.front {
+    transform: rotateY(0deg);
+}
+
+.back {
+    transform: rotateY(180deg);
+}
 
 .front-content,
 .back-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+align-items: center;
+width: 100%;
+height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* top instead of center */
+  align-items: center;         /* keeps it horizontally centered */
+  height: 100%;
+  padding-top: 30px;           /* breathing room from the top edge */
 }
 
 /**********************************************************************************
@@ -115,18 +180,28 @@ Pages
 }
 
 /* Page stacking */
-#p1 { z-index: 4; 
-    background: url('images/cover.jpg') ;
+#p1 {
+    z-index: 4;
+    background: url('images/cover.jpg');
+    background-size: cover;
+
+}
+
+#p2 {
+    z-index: 3;
+    background: url('images/pages.jpg');
     background-size: cover;
 }
-#p2 { z-index: 3;
-    background: url('images/pages.jpg') ;
-    background-size: cover;}
-#p3 { z-index: 2; 
- background: url('images/pages.jpg') ;
-    background-size: cover;}
-#p4 { z-index: 1; 
-    background: url('images/cover.jpg') ;
+
+#p3 {
+    z-index: 2;
+    background: url('images/pages.jpg');
+    background-size: cover;
+}
+
+#p4 {
+    z-index: 1;
+    background: url('images/cover.jpg');
     background-size: cover;
 
 }
@@ -163,6 +238,7 @@ Map
     width: 100%;
     height: 100%;
 }
+
 .map-container {
     display: flex;
     justify-content: center;
@@ -171,6 +247,7 @@ Map
     width: 100%;
     margin: 20px auto;
 }
+
 .coordinate-inputs {
     display: flex;
     flex-direction: column;
@@ -194,6 +271,7 @@ Buttons
     position: fixed;
     z-index: 100;
 }
+
 /* All buttons share the look */
 button {
     padding: clamp(6px, 1.2vh, 12px) clamp(10px, 1.6vw, 20px);
@@ -205,8 +283,14 @@ button {
     cursor: pointer;
 }
 
-button:hover    { background-color: #555; }
-button:disabled { background-color: #aaa; cursor: not-allowed; }
+button:hover {
+    background-color: #555;
+}
+
+button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
 
 /* Buttons inside forms stay in normal flow */
 form button {
@@ -214,9 +298,32 @@ form button {
     align-self: flex-start;
 }
 
-#Prev-btn { left: 10px;  bottom: 5vh; }
-#Next-btn { right: 10px; bottom: 5vh; }
-#Button-1 { right: 10px; top: calc(10px + 0 * 6vh); }
-#Button-2 { right: 10px; top: calc(10px + 1 * 6vh); }
-#Button-3 { right: 10px; top: calc(10px + 2 * 6vh); }
-#Button-4 { right: 10px; top: calc(10px + 3 * 6vh); }
+#Prev-btn {
+    left: 10px;
+    bottom: 5vh;
+}
+
+#Next-btn {
+    right: 10px;
+    bottom: 5vh;
+}
+
+#Button-1 {
+    right: 10px;
+    top: calc(10px + 0 * 6vh);
+}
+
+#Button-2 {
+    right: 10px;
+    top: calc(10px + 1 * 6vh);
+}
+
+#Button-3 {
+    right: 10px;
+    top: calc(10px + 2 * 6vh);
+}
+
+#Button-4 {
+    right: 10px;
+    top: calc(10px + 3 * 6vh);
+}
