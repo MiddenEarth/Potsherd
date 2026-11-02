@@ -1,5 +1,9 @@
 import {map} from "./map.js"
 
+export let drawingList = [];
+//format of [isCircle,[coords],radius,drawingID]
+//format of [coords]= [[long,lat],[longitude,latitude],...]
+
 // Group that stores all user drawings
 const drawnItems = new L.FeatureGroup();
 //Adding a layer for the drawn items
@@ -26,21 +30,76 @@ map.addControl(drawControl);
 //After a drawing is finished:
 //detects when a drawing was made
 map.on(L.Draw.Event.CREATED, function(event) {
+    //using id to know which to modify (linking it to drawingList)
+    const id = drawingList.length;
     // Constant of the shape drawn
     const layer = event.layer;
     // Add it to the map
     drawnItems.addLayer(layer);
+
+    //Saving the coordinates of the drawn item
+    let drawing = {
+        isCircle:false,
+        coordinates:[],
+        radius:null,
+        drawingID:id
+    }
+
+    if (layer instanceof L.Circle) {
+        drawing.isCircle = true;
+        const center = layer.getLatLng();
+        drawing.coordinates = [center.lng, center.lat];
+        drawing.radius = layer.getRadius();
+    }else {
+        const geoJSON = layer.toGeoJSON();
+        drawing.coordinates = geoJSON.geometry.coordinates;
+    }
+    drawingList.push(drawing);
+    layer.drawingID = id;
+
+    //display
+    layer.bindTooltip("ID: "+id,{permanent:true, direction:"center"});
+
+
+
+    console.log(drawingList);
 });
 
 //After a drawing has been edited:
 //detects when user modifies a drawing
 map.on(L.Draw.Event.EDITED, function(event) {
-    //Nothing in function
+    event.layers.eachLayer(function(layer) {
+        const id = layer.drawingID;
+        // Replace the existing object
+        drawingList[id] = {
+            isCircle: layer instanceof L.Circle,
+            coordinates: layer.toGeoJSON().geometry.coordinates,
+            radius: layer instanceof L.Circle ? layer.getRadius() : null,
+            drawingID: id
+        };
+    });
+    console.log(drawingList);
 });
 
 //After a drawing has been deleted:
 //detects when user deletes a drawing
-map.on(L.Draw.Event.DELETED, function() {
-
+map.on(L.Draw.Event.DELETED, function(event) {
+    const deletedIDs = [];
+    event.layers.eachLayer(function(layer) {
+        deletedIDs.push(layer.drawingID);
+    })
+    deletedIDs.sort((a, b) => b - a);
+    //deleting
+    deletedIDs.forEach(deletedID => {
+        drawingList.splice(deletedID, 1);
+        drawnItems.eachLayer(function(layer) {
+            if(layer.drawingID>deletedID){
+                layer.drawingID--;
+                drawingList[layer.drawingID].drawingID=layer.drawingID;
+                layer.setTooltipContent("ID: "+layer.drawingID);
+            }
+        })
+    })
+    console.log(drawingList);
 });
 
