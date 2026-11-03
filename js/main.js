@@ -13,14 +13,15 @@ let soilLayer=null;
 
 document.getElementById("getSoilData").addEventListener("click", async function (e) {
     e.preventDefault();
-
-
-
     const firstDrawing = drawingList[0];
-    for (let i=0; i<drawingList.length; i++) {
-        bindSoilWmsToCircle(drawingList[i]);
-    }
-    /*let userArea;
+const q = querySoilByMukey("456029")
+    console.log(q);
+    /*
+
+        for (let i=0; i<drawingList.length; i++) {
+            bindSoilWmsToCircle(drawingList[i]);
+        }*/
+    let userArea;
 
     if (firstDrawing.isCircle) {
 
@@ -102,7 +103,7 @@ document.getElementById("getSoilData").addEventListener("click", async function 
 
     const mapUnitNames = await response.json();
 
-    console.log("Map unit names:", mapUnitNames);*/
+    console.log("Map unit names:", mapUnitNames);
 });
 
 
@@ -155,7 +156,45 @@ function bindSoilWmsToCircle(object) {
 
 
 
+async function querySoilByMukey(mukey) {
 
+    const sql = `
+        SELECT
+            c.mukey,
+            c.cokey,
+            c.compname,
+            c.comppct_r,
+            h.hzdept_r,
+            h.hzdepb_r,
+            h.om_r,
+            h.ph1to1h2o_r,
+            h.sandtotal_r,
+            h.silttotal_r,
+            h.claytotal_r
+        FROM component AS c
+        JOIN chorizon AS h
+            ON c.cokey = h.cokey
+        WHERE c.mukey = ${Number(mukey)}
+        ORDER BY c.comppct_r DESC, h.hzdept_r;
+    `;
+
+    const response = await fetch(SDA_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            query: sql,
+            format: "JSON+COLUMNNAME"
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`SDA request failed: ${response.status}`);
+    }
+
+    return await response.json();
+}
 
 
 
