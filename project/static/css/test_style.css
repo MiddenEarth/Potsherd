@@ -69,10 +69,7 @@ Animate background
     10.83% { opacity: 0; }    /* fade out while the next one fades in */
     100%   { opacity: 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .backgrounds img { animation: none; }
-    .backgrounds img:first-child { opacity: 1; }
-}
+
 
 
 h2 {
