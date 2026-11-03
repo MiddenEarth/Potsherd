@@ -1,4 +1,3 @@
-
 //Starting Values
 let lat = 34.2454653;
 let lng = -118.5286373;

@@ -1,9 +1,8 @@
 
-export async function fetchMapData(bounds) {
+export async function fetchMapData(bbox) {
 
     // Get the map boundaries
-    const southWest = bounds.getSouthWest();
-    const northEast = bounds.getNorthEast();
+    const [minLng, minLat, maxLng, maxLat] = bbox;
 
     // USDA WFS request
     const url = new URL(
@@ -19,7 +18,7 @@ export async function fetchMapData(bounds) {
         OUTPUTFORMAT: "GeoJSON",
 
         // EPSG:4326 uses latitude, longitude axis order here
-        BBOX: `${southWest.lat},${southWest.lng},${northEast.lat},${northEast.lng},EPSG:4326`
+        BBOX: `${minLat},${minLng},${maxLat},${maxLng},EPSG:4326`
     };
 
     Object.entries(params).forEach(([key, value]) => {
