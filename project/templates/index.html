@@ -27,7 +27,15 @@
             {% endif %}
         </ul>
     </nav>
-
+    
+    <div class="backgrounds">
+    {% for name in ['caveofaltamira.webp', 'chichenitza.webp', 'colosseum.webp', 'greatpyramids.webp',
+                    'greatwallofchina.webp', 'machupicu.webp', 'mohenjo-daro.webp', 'petra.webp',
+                    'pompeii.webp', 'stonehedge.webp', 'tombofsqinshihuangdi.webp', 'valleyofkinds.avif'] %}
+    <img src="{{ url_for('static', filename='slideshow/' ~ name) }}" style="--i: {{ loop.index0 }}" alt="">
+    {% endfor %}
+</div>
+    
     <button id="Prev-btn">Prev</button>
 
     <div class="book" id="book">
