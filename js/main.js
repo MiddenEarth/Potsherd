@@ -8,11 +8,19 @@ import {drawingList} from "./draw.js";
 import {fetchMapData} from "./sda.js";
 import {map} from "./map.js"
 
+let soilLayer=null;
+
+
 document.getElementById("getSoilData").addEventListener("click", async function (e) {
     e.preventDefault();
-    const firstDrawing = drawingList[0];
 
-    let userArea;
+
+
+    const firstDrawing = drawingList[0];
+    for (let i=0; i<drawingList.length; i++) {
+        bindSoilWmsToCircle(drawingList[i]);
+    }
+    /*let userArea;
 
     if (firstDrawing.isCircle) {
 
@@ -94,8 +102,65 @@ document.getElementById("getSoilData").addEventListener("click", async function 
 
     const mapUnitNames = await response.json();
 
-    console.log("Map unit names:", mapUnitNames);
+    console.log("Map unit names:", mapUnitNames);*/
 });
+
+
+
+function bindSoilWmsToCircle(object) {
+    let turfPolygon;
+    if(object.isCircle){
+        // Turf uses [longitude, latitude].
+        // Leaflet uses [latitude, longitude].
+        turfPolygon = turf.circle(
+            object.coordinates,
+            object.radius,
+            {
+                units: "meters",
+                steps: 128
+            }
+        );
+    }else{
+        console.log("ON NOT CIRCLE")
+        turfPolygon = turf.polygon(object.coordinates);
+    }
+
+
+    // Convert Turf coordinates to Leaflet coordinates
+    const boundary = turfPolygon.geometry.coordinates[0].map(
+        ([longitude, latitude]) => [latitude, longitude]
+    );
+
+    // Create the clipped SSURGO WMS
+    soilLayer = L.tileLayer.wms.clipped(
+        "https://sdmdataaccess.sc.egov.usda.gov/Spatial2/service.ows",
+        {
+            layers: "MapunitPoly",
+            styles: "",
+            format: "image/png",
+            transparent: true,
+            version: "1.3.0",
+            attribution: "USDA NRCS Soil Data Access"
+        },
+        boundary
+    ).addTo(map);
+
+    soilLayer.on("tileerror", function (event) {
+        console.error("USDA soil tile error:", event);
+    });
+
+    // Display the generated GeoJSON in the browser console
+    console.log("SSURGO WMS boundary GeoJSON:", turfPolygon);
+}
+
+
+
+
+
+
+
+
+
 
 
 /*
