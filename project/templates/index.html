@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!--test-->    
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Potsherd</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/test_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide_test.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="{{ url_for('static', filename='js/book.js') }}" defer></script>
@@ -29,7 +27,7 @@
             {% endif %}
         </ul>
     </nav>
-    
+
     <div class="backgrounds">
     {% for name in ['caveofaltamira.webp', 'chichenitza.webp', 'colosseum.webp', 'greatpyramids.webp',
                     'greatwallofchina.webp', 'machupicu.webp', 'mohenjo-daro.webp', 'petra.webp',
@@ -37,7 +35,7 @@
     <img src="{{ url_for('static', filename='slideshow/' ~ name) }}" style="--i: {{ loop.index0 }}" alt="">
     {% endfor %}
 </div>
-    
+
     <button id="Prev-btn">Prev</button>
 
     <div class="book" id="book">
@@ -78,6 +76,7 @@
                     </form>
 
                     <form id="polygon-form" novalidate>
+
                         <div class="button-row">
                             <button class="submit-button" id="add-list" type="button">Add coords</button>
                             <button class="submit-button" id="make-list" type="button">Make polygon</button>
@@ -140,10 +139,12 @@
     <button id="Button-2">Dirt and Soil Stuff</button>
     <button id="Button-3">Vegetable Stuff</button>
     <button id="Button-4">About/Contact</button>
+    <button id="Button-5">Login</button>
+    <button id="Button-6">Register</button>
     <button id="Next-btn">Next</button>
 
     <script>const isLoggedIn = document.body.dataset.loggedIn === 'true';</script>
-    <script src="{{ url_for('static', filename='js/script_luis.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/new_luis_script.js') }}" defer></script>
 </body>
 
 </html>
