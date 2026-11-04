@@ -49,29 +49,41 @@ Animate background
 /* ---------- Background slideshow ---------- */
 .backgrounds {
     position: fixed;
-    inset: 0;
-    z-index: -1;            /* behind the nav, book and buttons */
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
 }
 .backgrounds img {
     position: absolute;
-    inset: 0;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    animation: slide 36s infinite;              /* 12 images x 3 s */
-    animation-delay: calc(var(--i) * 3s);       /* each image starts 3 s after the one before */
+    animation-name: slide;
+    animation-duration: 36s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
 }
+.backgrounds img:nth-child(1)  { animation-delay: 0s; }
+.backgrounds img:nth-child(2)  { animation-delay: 3s; }
+.backgrounds img:nth-child(3)  { animation-delay: 6s; }
+.backgrounds img:nth-child(4)  { animation-delay: 9s; }
+.backgrounds img:nth-child(5)  { animation-delay: 12s; }
+.backgrounds img:nth-child(6)  { animation-delay: 15s; }
+.backgrounds img:nth-child(7)  { animation-delay: 18s; }
+.backgrounds img:nth-child(8)  { animation-delay: 21s; }
+.backgrounds img:nth-child(9)  { animation-delay: 24s; }
+.backgrounds img:nth-child(10) { animation-delay: 27s; }
+.backgrounds img:nth-child(11) { animation-delay: 30s; }
+.backgrounds img:nth-child(12) { animation-delay: 33s; }
+
 @keyframes slide {
     0%     { opacity: 0; }
-    2.5%   { opacity: 1; }    /* fade in (~0.9 s) */
-    8.33%  { opacity: 1; }    /* hold until the next image starts */
-    10.83% { opacity: 0; }    /* fade out while the next one fades in */
+    2.5%   { opacity: 1; }
+    8.33%  { opacity: 1; }
+    10.83% { opacity: 0; }
     100%   { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .backgrounds img { animation: none; }
-    .backgrounds img:first-child { opacity: 1; }
 }
 
 h2 {
