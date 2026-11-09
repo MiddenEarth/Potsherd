@@ -29,9 +29,11 @@
     {% for name in ['caveofaltamira.webp', 'chichenitza.webp', 'colosseum.webp', 'greatpyramids.webp',
                     'greatwallofchina.webp', 'machupicu.webp', 'mohenjo-daro.webp', 'petra.webp',
                     'pompeii.webp', 'stonehedge.webp', 'tombofsqinshihuangdi.webp', 'valleyofkinds.avif'] %}
-    <img src="{{ url_for('static', filename='slideshow/' ~ name) }}" style="--i: {{ loop.index0 }}" alt="">
+    <img src="{{ url_for('static', filename='slideshow/' ~ name) }}" alt=""{% if loop.first %} class="active"{% endif %}>
+    <!--<img src="{{ url_for('static', filename='slideshow/' ~ name) }}" style="--i: {{ loop.index0 }}" alt="">-->
     {% endfor %}
 </div>
+<script src="{{ url_for('static', filename='js/slideshow.js') }}" defer></script>
 
     <button id="Prev-btn">Prev</button>
 
