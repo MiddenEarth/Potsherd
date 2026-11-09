@@ -15,9 +15,6 @@
 
     <nav>
         <ul>
-            <li><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('about') }}">About</a></li>
-            <li><a href="{{ url_for('contact') }}">Contact</a></li>
             {% if current_user.is_authenticated %}
                 <li><span class="nav-user">{{ current_user.username }}</span></li>
                 <li><a href="{{ url_for('logout') }}">Log out</a></li>
@@ -139,8 +136,6 @@
     <button id="Button-2">Dirt and Soil Stuff</button>
     <button id="Button-3">Vegetable Stuff</button>
     <button id="Button-4">About/Contact</button>
-    <button id="Button-5">Login</button>
-    <button id="Button-6">Register</button>
     <button id="Next-btn">Next</button>
 
     <script>const isLoggedIn = document.body.dataset.loggedIn === 'true';</script>
