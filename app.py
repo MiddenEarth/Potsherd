@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, logout_user, login_required, current_user             #flask_login handles who is logged in with login_user/logout_user start and ends logins; 
 from project import create_app, db
 from project.models import User, Find
-import secrets
-from datetime import datetime, timedelta
-from project.outbound_mail import send_email
+import secrets                                                                            #secrets is making cryptographically strong values
+from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
+from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
 
 app = create_app()
 
