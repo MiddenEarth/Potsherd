@@ -59,20 +59,25 @@ Animate background
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    animation: slide 36s infinite;              /* 12 images x 3 s */
-    animation-delay: calc(var(--i) * 3s);       /* each image starts 3 s after the one before */
+    transition: opacity 0.9s ease-in-out;
 }
+.backgrounds img.active {
+    opacity: 1;
+}
+    /*animation: slide 36s infinite;              /* 12 images x 3 s */
+    /*animation-delay: calc(var(--i) * 3s);       /* each image starts 3 s after the one before */
+/*}
 @keyframes slide {
     0%     { opacity: 0; }
     2.5%   { opacity: 1; }    /* fade in (~0.9 s) */
-    8.33%  { opacity: 1; }    /* hold until the next image starts */
-    10.83% { opacity: 0; }    /* fade out while the next one fades in */
-    100%   { opacity: 0; }
+    /*8.33%  { opacity: 1; }    /* hold until the next image starts */
+    /*10.83% { opacity: 0; }    /* fade out while the next one fades in */
+    /*100%   { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
     .backgrounds img { animation: none; }
     .backgrounds img:first-child { opacity: 1; }
-}
+}*/
 
 h2 {
     font-size: clamp(24px, 4vw, 48px);
