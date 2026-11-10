@@ -15,33 +15,48 @@
 </head>
 
 <body>
-    
+
     <div class="backgrounds">
-        <img src = "slideshow/caveofaltamira.webp"  class = "background-image">
-        <img src = "slideshow/chichenitza.webp"  class = "background-image">
-        <img src = "slideshow/colosseum.webp"  class = "background-image"> 
-        <img src = "slideshow/greatpyramid.webp"  class = "background-image">
-        <img src = "slideshow/greatwallofchina.webp" class = "background-image">
-        <img src = "slideshow/machupicchu.webp" class = "background-image">
-        <img src = "mohenjo-daro.webp" class = "background-image">
-        <img src = "slideshow/petra.webp" class = "background-image">
-        <img src = "slideshow/pompii.webp" class = "background-image">
-        <img src = "slideshow/stonehenge.webp" class = "background-image">
-        <img src = "slideshow/tombofqinshihuang.webp" class = "background-image">
-        <img src = "slideshow/valleyoffire.webp" class = "background-image">
+        <img src="slideshow/caveofaltamira.webp" class="background-image">
+        <img src="slideshow/chichenitza.webp" class="background-image">
+        <img src="slideshow/colosseum.webp" class="background-image">
+        <img src="slideshow/greatpyramid.webp" class="background-image">
+        <img src="slideshow/greatwallofchina.webp" class="background-image">
+        <img src="slideshow/machupicchu.webp" class="background-image">
+        <img src="mohenjo-daro.webp" class="background-image">
+        <img src="slideshow/petra.webp" class="background-image">
+        <img src="slideshow/pompii.webp" class="background-image">
+        <img src="slideshow/stonehenge.webp" class="background-image">
+        <img src="slideshow/tombofqinshihuang.webp" class="background-image">
+        <img src="slideshow/valleyoffire.webp" class="background-image">
 
 
     </div>
+    <div class="useroverlay">
         
+    </div>
     <button id="Prev-btn">Prev</button>
     <div class="book" id="book">
         <!-- *************************************************************************
-    Front Cover 
+    Front Cover / Login Page
     ************************************************************************* -->
         <div class="page" id="p1">
             <div class="front">
                 <div class="front-content">
                     <h2>POTSHERD</h2>
+                    <div id="login" class="login">
+                        <h2>Sign in</h2>
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" autocomplete="username" required>
+
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+                        <button id="loginbutton" type="submit">Log in</button>
+                        <button id="registerbutton" type="submit">Register</button>
+                        <div class="rectangle"></div>
+
+                    </div>
                 </div>
             </div>
             <!-- *************************************************************************
@@ -92,9 +107,9 @@
     ************************************************************************* -->
         <div class="page" id="p2">
             <div class="front">
-  
-                    <div id="map"></div>
-                    <!--Enter content here-->
+
+                <div id="map"></div>
+                <!--Enter content here-->
 
             </div>
             <!-- *************************************************************************
@@ -144,9 +159,11 @@
                 <div class="back-content">
                     <h2>About/Contact</h2>
                     <h3>Contact:<h3>
-                        <a href="https://github.com/MiddenEarth" ><i class="fa-brands fa-github" style="color: #C99A2E;"></i></a>
-                        <a href="abhishek.verma@csun.edu" ><i class="fa-solid fa-envelope" style="color: #C99A2E"></i></a>
-                    </p>
+                            <a href="https://github.com/MiddenEarth"><i class="fa-brands fa-github"
+                                    style="color: #C99A2E;"></i></a>
+                            <a href="abhishek.verma@csun.edu"><i class="fa-solid fa-envelope"
+                                    style="color: #C99A2E"></i></a>
+                            </p>
                 </div>
             </div>
         </div>

@@ -16,6 +16,23 @@ const pages = [
     document.getElementById("p3"),
     document.getElementById("p4")
 ];
+//********************************************************************************//
+//login//
+//*******************************************************************************//
+const loginButton = document.getElementById('loginbutton');
+const targetDiv = document.getElementById('login');
+const username = document.getElementById('username');
+const password = document.getElementById('password');
+loginButton.addEventListener('click', () => {
+    if (username.value === 'root' && password.value === 'root') {
+        alert('Login successful!');
+                targetDiv.classList.add('hidden');
+                
+    } else {
+        alert('Invalid username or password');
+    }
+
+});
 
 //********************************************************************************//
 //Page state//
