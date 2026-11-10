@@ -205,6 +205,116 @@ Pages
     padding: 16px;
     overflow-y: auto;
 }
+/******************************************************
+Login and Register Form
+******************************************************/
+/******************************************************
+Login and Register Form (scales with the book)
+******************************************************/
+.login {
+  /* 1em = 16px when the book is at its max width (800px); shrinks with the book.
+     The 11px floor keeps text legible on very small screens. */
+  font-size: max(11px, calc(var(--book-w) * 0.02));
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: 60%;
+  max-width: none;
+  height: auto;
+  max-height: 100%;
+  margin: 8% auto;
+  padding: 2em;
+  background: #331800;
+  border: 1px solid #212121;
+  border-radius: 1.5em;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  font-family: system-ui, sans-serif;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.login.hidden {
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+}
+
+.login h2 {
+  font-size: 1.75em;   /* overrides the global viewport-based h2 */
+  margin: 0 0 0.5em;
+  padding: 0;
+  text-align: center;
+}
+
+.login label {
+  font-size: 0.875em;  /* 14px at full size */
+  font-weight: 600;
+  color: #C99A2E;
+}
+
+.login input {
+  padding: 0.65em 0.75em;
+  margin-bottom: 0.5em;
+  font-size: 1em;
+  border: 1px solid #ccd0d6;
+  border-radius: 0.5em;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.login input:focus {
+  border-color: #C99A2E;
+  box-shadow: 0 0 0 0.2em rgba(79, 124, 255, 0.2);
+}
+
+.login button {
+  margin-top: 0.5em;
+  padding: 0.7em;
+  font-size: 1em;      /* overrides the global viewport-based button size */
+  font-weight: 600;
+  color: #fff;
+  background: #8F1B15;
+  border: none;
+  border-radius: 0.5em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.register button {
+  margin-top: 0.5em;
+  padding: 0.7em;
+  font-size: 1em;
+  font-weight: 600;
+  color: #fff;
+  background: #3a63e0;
+  border: none;
+  border-radius: 0.5em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.login button:hover,
+.register button:hover {
+  background: #3a63e0;
+}
+
+/******************************************************
+Coordinate Input Form 
+******************************************************/
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background-color: #F3A770;
+    border: 1px solid #8F1B15;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
 
 /******************************************************
 Coordinate Input Form 
