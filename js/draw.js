@@ -1,8 +1,8 @@
 import {map} from "./map.js"
 
 export let drawingList = [];
-//format of [isCircle,[coords],radius,drawingID]
-//format of [coords]= [[long,lat],[longitude,latitude],...]
+//format of [id:number,name:String,coorIndex:[[coords]],radius:null/number]
+//format of [coords]= [[lat,long],[latitude,longitude],...]
 
 // Group that stores all user drawings
 const drawnItems = new L.FeatureGroup();
@@ -39,29 +39,38 @@ map.on(L.Draw.Event.CREATED, function(event) {
 
     //Saving the coordinates of the drawn item
     let drawing = {
-        isCircle:false,
-        coordinates:[],
-        radius:null,
-        drawingID:id
+        id:id,
+        name:"",
+        coordIndex:[],
+        radius:null
     }
 
     if (layer instanceof L.Circle) {
-        drawing.isCircle = true;
+        drawing.name = "Circle";
         const center = layer.getLatLng();
-        drawing.coordinates = [center.lng, center.lat];
+        drawing.coordIndex = [center.lng, center.lat];
         drawing.radius = layer.getRadius();
-    }else {
-        const geoJSON = layer.toGeoJSON();
-        drawing.coordinates = geoJSON.geometry.coordinates;
     }
+    else {
+        drawing.name = "Square";
+        const geoJSON = layer.toGeoJSON();
+        drawing.coordIndex = geoJSON.geometry.coordinates;
+    }
+    if (layer instanceof L.Rectangle) {
+        drawing.name = "Rectangle";
+        const geoJSON = layer.toGeoJSON();
+        drawing.coordIndex = geoJSON.geometry.coordinates;
+    }
+    else if (layer instanceof L.polygon){
+        drawing.name = "Polygon";
+        const geoJSON = layer.toGeoJSON();
+        drawing.coordIndex = geoJSON.geometry.coordinates;
+    }
+
     drawingList.push(drawing);
     layer.drawingID = id;
-
     //display
     layer.bindTooltip("ID: "+id,{permanent:true, direction:"center"});
-
-
-
     console.log(drawingList);
 });
 
