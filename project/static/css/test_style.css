@@ -428,3 +428,8 @@ form button {
     right: 10px;
     top: calc(10px + 3 * 6vh);
 }
+
+/* May be removed later, related to buttons on the front page... */
+.login button { align-self: stretch; }
+.login .flash { margin: 0; text-align: center; font-size: 0.875em; color: #F3A770; }
+.login .forgot { text-align: center; font-size: 0.875em; color: #C99A2E; }
