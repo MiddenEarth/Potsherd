@@ -43,18 +43,30 @@
             <div class="front">
                 <div class="front-content">
                     <h2>POTSHERD</h2>
+                    {% if current_user.is_authenticated %}
                     <div id="login" class="login">
+                        <h2>Welcome, {{ current_user.username }}</h2>
+                        <p class="flash">You are signed in.</p>
+                    </div>
+                    {% else %}
+                    <form id="login" class="login" method="POST" action="{{ url_for('login') }}">
                         <h2>Sign in</h2>
+                        {% with messages = get_flashed_messages() %}
+                            {% for message in messages %}
+                                <p class="flash">{{ message }}</p>
+                            {% endfor %}
+                        {% endwith %}
                         <label for="username">Username</label>
-                        <input type="text" id="username" name="username" autocomplete="username" required>
-
+                        <input type="text" id="username" name="username" autocomplete="username" required maxlength="100">
+                    
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" autocomplete="current-password" required>
-
+                    
                         <button id="loginbutton" type="submit">Log in</button>
-                        <button id="registerbutton" type="submit">Register</button>
-                        <div class="rectangle"></div>
-                    </div>
+                        <button id="registerbutton" type="button" onclick="location.href='{{ url_for('register') }}'">Register</button>
+                        <a class="forgot" href="{{ url_for('forgot_password') }}">Forgot your password?</a>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
             <div class="back">
