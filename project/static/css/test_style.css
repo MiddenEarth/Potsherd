@@ -433,3 +433,5 @@ form button {
 .login button { align-self: stretch; }
 .login .flash { margin: 0; text-align: center; font-size: 0.875em; color: #F3A770; }
 .login .forgot { text-align: center; font-size: 0.875em; color: #C99A2E; }
+/*troubleshooting line below...*/
+#p2 .front-content { padding: 0; }
