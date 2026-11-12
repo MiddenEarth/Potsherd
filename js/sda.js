@@ -1,4 +1,6 @@
+//Module used to communicate with usda for soil surveys
 
+//Function that is used to get a GeoJSON of an area using bbox (bounded box)
 export async function fetchMapData(bbox) {
 
     // Get the map boundaries
@@ -41,8 +43,10 @@ export async function fetchMapData(bbox) {
     } catch (error) {
         console.error("Failed to fetch soil polygons:", error);
     }
-}
+}//END OF FUNCTION FOR GeoJSON
 
+//SQL query using fetch to obtain information like the components, major component etc
+//input is a unique mukey (Map Unit Key)
 export async function fetchSoilComposition(mukeys) {
 
     // Remove duplicate MUKEYs
@@ -84,4 +88,4 @@ export async function fetchSoilComposition(mukeys) {
     }
 
     return await response.json();
-}
+}//END of information fetch query

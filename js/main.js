@@ -1,21 +1,35 @@
-import "./map.js"
+//initializing the modules in order
+import "./map.js"   //Creates and handles the variable for the map
+import "./draw.js"  //Creates and handles events for drawing inside the map
+import "./buttons.js"   //Makes buttons inside the HTML work using functions that may connect with other modules
 
-import "./draw.js"
 
-import "./buttons.js"
 
+//TESTING AREA FOR CODE NOT IMPLEMENTED YET
 import {drawingList} from "./draw.js";
 import {fetchMapData} from "./sda.js";
 import {map} from "./map.js"
 
-let soilLayer=null;
+//let soilLayer=null;
+const SDA_URL = "https://SDMDataAccess.sc.egov.usda.gov/Tabular/post.rest";
 
 
+//BUTTON IN HTML LINKED TO THIS async FUNCTION
 document.getElementById("getSoilData").addEventListener("click", async function (e) {
     e.preventDefault();
     const firstDrawing = drawingList[0];
-const q = querySoilByMukey("456029")
-    console.log(q);
+    const q = querySoilByMukey("456029")
+    console.log("?READING?",q);
+
+    const result = await querySDA(
+        SDA_URL,
+        `SELECT ptotal_l, ptotal_r, ptotal_h
+     FROM chorizon
+     WHERE cokey = ?`,
+        28668157
+    );
+
+    console.log(result);
     /*
 
         for (let i=0; i<drawingList.length; i++) {
@@ -104,7 +118,7 @@ const q = querySoilByMukey("456029")
     const mapUnitNames = await response.json();
 
     console.log("Map unit names:", mapUnitNames);
-});
+});//END OF async FUNCTION FOR BUTTON
 
 
 
@@ -133,7 +147,7 @@ function bindSoilWmsToCircle(object) {
     );
 
     // Create the clipped SSURGO WMS
-    soilLayer = L.tileLayer.wms.clipped(
+    const soilLayer = L.tileLayer.wms.clipped(
         "https://sdmdataaccess.sc.egov.usda.gov/Spatial2/service.ows",
         {
             layers: "MapunitPoly",
@@ -155,7 +169,24 @@ function bindSoilWmsToCircle(object) {
 }
 
 
+async function querySDA(url, query, mukey) {
+    const sql = query.replaceAll("?", Number(mukey));
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            query: sql,
+            format: "JSON+COLUMNNAME"
+        })
+    });
+    if (!response.ok) {
+        throw new Error(`SDA request failed: ${response.status}`);
+    }
 
+    return await response.json();
+}
 async function querySoilByMukey(mukey) {
 
     const sql = `
@@ -192,8 +223,8 @@ async function querySoilByMukey(mukey) {
     if (!response.ok) {
         throw new Error(`SDA request failed: ${response.status}`);
     }
-
     return await response.json();
+
 }
 
 
@@ -202,9 +233,6 @@ async function querySoilByMukey(mukey) {
 
 
 
-/*
-import { fetchMapData } from "./sda.js";
-import {map} from "./map.js"
 // Pass Leaflet's current visible map bounds
 const soilData = await fetchMapData(map.getBounds());
 
@@ -319,4 +347,4 @@ L.geoJSON(userCircle, {
 }).addTo(map);
 
 // Zoom to the circle
-map.fitBounds(L.geoJSON(userCircle).getBounds());*/
+map.fitBounds(L.geoJSON(userCircle).getBounds());

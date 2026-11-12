@@ -1,15 +1,10 @@
-import {map} from "./map.js"
+//IMPORT -------------------------------------------------------
+import {map} from "./map.js"    //The map variable, displays all the things inside the map
 
-let lat = 34.2454653;
-let lng = -118.5286373;
-// Create marker
-let marker = L.marker([lat, lng]).addTo(map);
-
-// Get HTML elements
+// ALL HTML CONSTANTS--------------------
 const latitudeInput = document.getElementById('latitude');
 const longitudeInput = document.getElementById('longitude');
-latitudeInput.value = 34.2454653;
-longitudeInput.value =-118.5286373;
+
 const submitButton = document.getElementById('submit-button');
 const convertButton = document.getElementById('convert-button');
 
@@ -28,18 +23,35 @@ const copyToClipboardButton = document.getElementById('copy-list');
 const importButton = document.getElementById('import-list');
 const importInput = document.getElementById('import-input');
 
-//circle maker
+//VALUES AND CONSTANTS-------------------------
+
+let lat = 34.2454653;
+let lng = -118.5286373;
+// Create marker
+let marker = L.marker([lat, lng]).addTo(map);
+
+
+latitudeInput.value = lat;       //SET for beginning
+longitudeInput.value =lng;     //SET for beginning
+
 //circle state tracks if there is a circle created
 let circle = null;  //Only null when there isn't a circle
 
-//Polygon maker
 //cord list are made of 2 numbers [latitude,longitude]
 let polygonList = [];   //Handles all the cord lists to form a polygon
-//saves the markers created so we can edit/delete them later
-//oldest are first, newest are last in the list
+
+//Saves the markers created so we can edit/delete them later
+//  oldest are first, newest are last in the list
 let markerList = [];    //Handler all the created markers
+
 //polygon state just tracks if there is a polygon created
 let polygon=null;   //Only null when there isn't a polygon
+
+//VALUES AND CONSTANTS-------------------------
+
+
+
+//FUNCTIONS ----------------------------------------------------------------------------------
 
 //AddList function for the addButton event listener
 //Handles adding a new pair of coordinates to markerList, polygonList and HTML list
@@ -58,10 +70,12 @@ function addList() {
     //adds to the HTML list that stores the coordinates
     addToHtmlList(cord)
 }
+
 //Specialized function to add to the polygon list
 function addToPolygonList(cord){
     polygonList.push(cord); //cord is [latitude,longitude]->[number, number]
 }
+
 //Function to add a marker to the markerList using a cord list
 function addToMarkerList(cord){
     //cord[0] is latitude, cord[1] is longitude
@@ -72,6 +86,7 @@ function addToMarkerList(cord){
     marker.bindPopup('['+cord[0]+','+cord[1]+']'+number).openPopup();   //Displays on the map e.g:[lat,lon] 1
     markerList.push(marker);    //Adds the marker to the markerList
 }
+
 //Function to add Item to list in HTML using a cord list
 //cord[0] is the latitude and cord[1] is the longitude
 function addToHtmlList(cord){
@@ -96,37 +111,8 @@ function addToHtmlList(cord){
     li.appendChild(button); //This links the button to the item instead of the list
 }
 
-// Submit button
-submitButton.addEventListener('click', goToLocation);
-
-// Press Enter in latitude input
-latitudeInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        goToLocation();
-    }
-});
-
-// Press Enter in longitude input
-longitudeInput.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        goToLocation();
-    }
-});
-//Convert()
-convertButton.addEventListener('click', convert);
-//makeCircle()
-make_circle.addEventListener('click', makeCircle);
-//addList()
-addButton.addEventListener('click', addList);
-//makePolygon()
-makePolygonButton.addEventListener('click', makePolygon);
-//clearList()
-clearPolygonButton.addEventListener('click',clearList);
-//importCords()
-importButton.addEventListener('click',importCords)
-//copyToClipboard()
-copyToClipboardButton.addEventListener('click',copyToClipboard)
-
+//Function that converts latitude and longitude format into UTM coordinates.
+//output of:easting, northing, number and zone
 function convert(){
     let latitude = parseFloat(latitudeInput.value);
     //Zone Letter check
@@ -375,3 +361,45 @@ function importCords(){
         addToHtmlList(cord)
     }
 }//End of function all the imported list will appear at the HTML list
+
+
+//FUNCTIONS ----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+//BUTTONS CONNECTED TO THE FUNCTIONS ---------------------------------------------------------------------------
+
+// Submit button
+submitButton.addEventListener('click', goToLocation);
+
+// Press Enter in latitude input
+latitudeInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        goToLocation();
+    }
+});
+
+// Press Enter in longitude input
+longitudeInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        goToLocation();
+    }
+});
+//Convert()
+convertButton.addEventListener('click', convert);
+//makeCircle()
+make_circle.addEventListener('click', makeCircle);
+//addList()
+addButton.addEventListener('click', addList);
+//makePolygon()
+makePolygonButton.addEventListener('click', makePolygon);
+//clearList()
+clearPolygonButton.addEventListener('click',clearList);
+//importCords()
+importButton.addEventListener('click',importCords)
+//copyToClipboard()
+copyToClipboardButton.addEventListener('click',copyToClipboard)
+
+//BUTTONS ---------------------------------------------------------------------------------------------

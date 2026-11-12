@@ -1,3 +1,4 @@
+//Module For displaying and creating a variable for the map
 //Starting Values
 let lat = 34.2454653;
 let lng = -118.5286373;
@@ -26,4 +27,4 @@ L.tileLayer.wms(
 */
 
 //Exporting files
-export {map};
+export {map};   //Export map for all other modules to use
