@@ -25,8 +25,8 @@ const pages = [
 //establish open book
 let currentPage = 0;
 function openBook() {
-book.classList.add("open");
-book.classList.remove("end");
+    book.classList.add("open");
+    book.classList.remove("end");
     
 }
 // establish closed book
@@ -35,8 +35,8 @@ function closeBook() {
 }
 //establish closed book at end
 function closeBookAtEnd() {
-  book.classList.remove("open");
-  book.classList.add("end");
+    book.classList.remove("open");
+    book.classList.add("end");
 }
 // Update button states based on current page
 function updateButtons() {
