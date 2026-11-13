@@ -27,4 +27,5 @@ L.tileLayer.wms(
 */
 
 //Exporting files
+window.map = map;  //book.js can use map too with this
 export {map};   //Export map for all other modules to use
