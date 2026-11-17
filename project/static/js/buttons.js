@@ -403,3 +403,49 @@ importButton.addEventListener('click',importCords)
 copyToClipboardButton.addEventListener('click',copyToClipboard)
 
 //BUTTONS ---------------------------------------------------------------------------------------------
+
+//SAVE LOCATION LOGIC, WAS MISSING FROM OLD VERSION
+
+const saveButton = document.getElementById('save-button');
+const savedMarkers = L.layerGroup().addTo(map);
+
+async function loadFinds() {
+    const res = await fetch('/api/finds');
+    if (!res.ok) return;
+
+    const finds = await res.json();
+    savedMarkers.clearLayers();
+    finds.forEach(f => {
+        L.marker([f.latitude, f.longitude])
+            .bindPopup('Saved find<br>Lat: ' + f.latitude + '<br>Lng: ' + f.longitude)
+            .addTo(savedMarkers);
+    });
+}
+
+async function saveFind() {
+    const latitude = parseFloat(latitudeInput.value);
+    const longitude = parseFloat(longitudeInput.value);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+        alert('Enter a valid latitude and longitude first.');
+        return;
+    }
+
+    const res = await fetch('/api/finds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ latitude: latitude, longitude: longitude })
+    });
+
+    if (res.ok) {
+        loadFinds();
+    } else {
+        const err = await res.json();
+        alert(err.error || 'Could not save.');
+    }
+}
+
+if (isLoggedIn && saveButton) {
+    saveButton.addEventListener('click', saveFind);
+    loadFinds();
+}
