@@ -5,6 +5,7 @@ from project.models import User, Find
 import secrets                                                                            #secrets is making cryptographically strong values
 from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
 from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
+import requests
 
 app = create_app()
 
@@ -24,6 +25,37 @@ def contact():
 @app.route('/topo.html', methods=['GET'])
 def topo():
     return render_template('topo.html')
+
+#TEST TO BYPASS CORS POLICY RESTRICTION
+TOPOVIEW_URL = ("https://ngmdb.usgs.gov/arcgis/rest/services/"
+                "topoview/ustOverlay/MapServer/0/query")
+
+@app.route('/api/topoview', methods=['GET'])
+def topoview():
+    try:
+        lat = float(request.args['lat'])
+        lng = float(request.args['lng'])
+    except (KeyError, ValueError):
+        return jsonify({'error': 'lat and lng are required numbers'}), 400
+
+    params = {
+        'where': '1=1',
+        'geometry': f'{lng},{lat}',          # ArcGIS wants longitude first
+        'geometryType': 'esriGeometryPoint',
+        'inSR': 4326,
+        'spatialRel': 'esriSpatialRelIntersects',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'f': 'geojson',
+    }
+    try:
+        r = requests.get(TOPOVIEW_URL, params=params, timeout=15)
+        r.raise_for_status()
+        return jsonify(r.json())
+    except requests.RequestException:
+        return jsonify({'error': 'TopoView service unavailable'}), 502
+#TEST TO BYPASS CORS POLICY RESTRICTION
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
