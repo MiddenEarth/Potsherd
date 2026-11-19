@@ -328,7 +328,6 @@ form {
   min-width: 120px;
   max-width: 400px;
   min-height: 1lh;          /* start at one line */
-  max-height: 300px;        /* optional cap, then it scrolls */
   padding: 8px;
   border: 1px solid #8F1B15;
   border-radius: 4px;
