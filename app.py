@@ -52,8 +52,9 @@ def topoview():
         r = requests.get(TOPOVIEW_URL, params=params, timeout=15)
         r.raise_for_status()
         return jsonify(r.json())
-    except requests.RequestException:
-        return jsonify({'error': 'TopoView service unavailable'}), 502
+    except requests.RequestException as e:
+        print("TOPOVIEW ERROR:", repr(e))     # appears in your Flask terminal
+        return jsonify({'error': str(e)}), 502
 #TEST TO BYPASS CORS POLICY RESTRICTION
 
 
