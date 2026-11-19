@@ -118,6 +118,14 @@ form {
     box-sizing: border-box;
 }
 
+input{
+    field-sizing: content;
+    padding: 8px;
+    border: 1px solid #8F1B15;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
 #map {
     height: 500px;
     width: 600px;
