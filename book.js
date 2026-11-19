@@ -33,7 +33,68 @@ loginButton.addEventListener('click', () => {
     }
 
 });
+//********************************************************************************//
+//coordinate input//
+//*******************************************************************************//
+const el = document.getElementById('import-input');
 
+const NUM_PREFIX = /^\d+\.\s/;
+const pairDone = /^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?[ ;]$/;
+
+// Give every line a "N. " prefix, keeping the caret where it was
+function renumber() {
+  const pos = el.selectionStart;
+  const before = el.value.slice(0, pos);
+  const lines = el.value.split('\n');
+  const lineIdx = before.split('\n').length - 1;
+  const colInLine = pos - (before.lastIndexOf('\n') + 1);
+  const colFromEnd = lines[lineIdx].length - colInLine;
+
+  const out = lines.map((l, i) => `${i + 1}. ${l.replace(NUM_PREFIX, '')}`);
+  const next = out.join('\n');
+  if (next === el.value) return;
+
+  el.value = next;
+  const newPos =
+    out.slice(0, lineIdx).reduce((n, l) => n + l.length + 1, 0) +
+    out[lineIdx].length - colFromEnd;
+  el.setSelectionRange(newPos, newPos);
+}
+
+el.addEventListener('input', (e) => {
+  // finished a coordinate pair -> jump to a new line
+  if (e.inputType === 'insertText') {
+    const pos = el.selectionStart;
+    const lastLine = el.value.slice(0, pos).split('\n').pop().replace(NUM_PREFIX, '');
+    if (pairDone.test(lastLine)) {
+      el.setRangeText('\n', pos - 1, pos, 'end');
+    }
+  }
+  renumber();
+});
+
+// Backspace at the start of a line's content removes the line break
+// instead of chewing into the "N. " prefix
+el.addEventListener('keydown', (e) => {
+  if (e.key !== 'Backspace' || el.selectionStart !== el.selectionEnd) return;
+  const pos = el.selectionStart;
+  const lineStart = el.value.lastIndexOf('\n', pos - 1) + 1;
+  const prefix = el.value.slice(lineStart).match(NUM_PREFIX);
+  if (prefix && pos === lineStart + prefix[0].length && lineStart > 0) {
+    e.preventDefault();
+    el.setRangeText('', lineStart - 1, pos, 'end');
+    renumber();
+  }
+});
+
+// Use this when importing: returns [[lat, lng], ...]
+function getCoordinates() {
+  return el.value
+    .split('\n')
+    .map(l => l.replace(NUM_PREFIX, '').trim())
+    .filter(Boolean)
+    .map(l => l.split(/\s*,\s*/).map(Number));
+}
 //********************************************************************************//
 //Page state//
 //*******************************************************************************//
