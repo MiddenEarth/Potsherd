@@ -21,6 +21,10 @@ def about():
 def contact():
     return jsonify({'message': 'Contact Us'})
 
+@app.route('/topo.html', methods=['GET'])
+def topo():
+    return render_template('topo.html')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':

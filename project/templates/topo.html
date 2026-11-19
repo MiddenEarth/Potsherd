@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TopoView Footprint Test</title>
+
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        #info {
+            position: absolute;
+            z-index: 1000;
+            top: 10px;
+            left: 50px;
+            width: 320px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            box-shadow: 0 1px 7px rgba(0, 0, 0, 0.35);
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="info">
+    Searching for a TopoView map footprint...
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
+
+<script>
+    const latitude = 34.25;
+    const longitude = -118.813;
+
+    const map = L.map("map").setView(
+        [latitude, longitude],
+        12
+    );
+
+    L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+        "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 19,
+
+            attribution:
+                "Tiles &copy; Esri — Sources: Esri, Garmin, USGS, " +
+                "NPS, and the GIS User Community"
+        }
+    ).addTo(map);
+
+    const searchMarker = L.marker([
+        latitude,
+        longitude
+    ])
+        .addTo(map)
+        .bindPopup(`
+            Search point<br>
+            Latitude: ${latitude}<br>
+            Longitude: ${longitude}
+        `)
+        .openPopup();
+
+    const topoViewLayer =
+        "https://ngmdb.usgs.gov/arcgis/rest/services/" +
+        "topoview/ustOverlay/MapServer/0";
+
+    const info = document.getElementById("info");
+
+    function updateInfo(message) {
+        info.innerHTML = message;
+    }
+
+    const queryParameters = {
+        where: "1=1",
+
+        // ArcGIS expects longitude first
+        geometry: `${longitude},${latitude}`,
+
+        geometryType: "esriGeometryPoint",
+        inSR: 4326,
+        spatialRel: "esriSpatialRelIntersects",
+
+        outFields: "*",
+        returnGeometry: true,
+        f: "geojson"
+    };
+
+    updateInfo("Requesting TopoView footprint...");
+
+    L.esri.get(
+        `${topoViewLayer}/query`,
+        queryParameters,
+        function(error, response) {
+            if (error) {
+                console.error(
+                    "TopoView request failed:",
+                    error
+                );
+
+                updateInfo(`
+                    <strong>TopoView request failed.</strong><br><br>
+                    Check the browser console for details.
+                `);
+
+                return;
+            }
+
+            console.log(
+                "TopoView response:",
+                response
+            );
+
+            if (
+                !response.features ||
+                response.features.length === 0
+            ) {
+                updateInfo(
+                    "No historical map footprint was found at this location."
+                );
+
+                return;
+            }
+
+            const footprintLayer = L.geoJSON(
+                response,
+                {
+                    style: {
+                        color: "blue",
+                        weight: 3,
+                        fillColor: "#3388ff",
+                        fillOpacity: 0.2
+                    },
+
+                    onEachFeature: function(
+                        feature,
+                        layer
+                    ) {
+                        const properties =
+                            feature.properties;
+
+                        const mapName =
+                            properties.map_name ||
+                            "Unknown";
+
+                        const mapYear =
+                            properties.imprint_year ||
+                            "Unknown";
+
+                        const mapScale =
+                            properties.map_scale ||
+                            "Unknown";
+
+                        const scanId =
+                            properties.scan_id ||
+                            "Unknown";
+
+                        layer.bindPopup(`
+                            <strong>${mapName}</strong><br>
+                            Year: ${mapYear}<br>
+                            Scale: ${mapScale}<br>
+                            Scan ID: ${scanId}
+                        `);
+                    }
+                }
+            ).addTo(map);
+
+            map.fitBounds(
+                footprintLayer.getBounds()
+            );
+
+            const firstMap =
+                response.features[0].properties;
+
+            updateInfo(`
+                <strong>Historical map footprint found</strong><br><br>
+
+                <strong>Name:</strong>
+                ${firstMap.map_name || "Unknown"}<br>
+
+                <strong>Year:</strong>
+                ${firstMap.imprint_year || "Unknown"}<br>
+
+                <strong>Scale:</strong>
+                ${firstMap.map_scale || "Unknown"}<br>
+
+                <strong>DRG name:</strong>
+                ${firstMap.drg_name || "Unknown"}<br>
+
+                <strong>Scan ID:</strong>
+                ${firstMap.scan_id || "Unknown"}
+            `);
+        }
+    );
+</script>
+
+</body>
+</html>
