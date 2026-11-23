@@ -27,12 +27,42 @@ def topo():
     return render_template('topo.html')
 
 #TEST TO BYPASS CORS POLICY RESTRICTION
-# Candidate TopoView services. The route tries them in order until one answers.
-TOPOVIEW_URLS = [
-    "https://ngmdb.usgs.gov/arcgis/rest/services/topoview/ustOverlay/MapServer/0/query",
-    "https://energy.usgs.gov/arcgis/rest/services/topoview/ustOverlay/MapServer/0/query",
-    "https://ngmdb.usgs.gov/arcgis/rest/services/topoview/ustOverlayAuto/MapServer/0/query",
-]
+# USGS's own TopoView /query endpoint returns 404, so we use Esri's public index of the
+# same USGS historical topo maps instead. It has one layer per map scale.
+HISTORICAL_INDEX = "https://historical1.arcgis.com/arcgis/rest/services/USA_Historical_Topo_Maps_Index/MapServer"
+HISTORICAL_LAYERS = [4, 9, 10, 12, 15]   # 1:24,000  1:62,500  1:63,360  1:100,000  1:250,000
+
+def _query_layer(layer_id, lng, lat):
+    params = {
+        'where': '1=1',
+        'geometry': f'{lng},{lat}',                  # ArcGIS wants longitude first
+        'geometryType': 'esriGeometryPoint',
+        'inSR': 4326,
+        'spatialRel': 'esriSpatialRelIntersects',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'outSR': 4326,
+        'f': 'geojson',
+    }
+    r = requests.get(f'{HISTORICAL_INDEX}/{layer_id}/query', params=params,
+                     headers={'User-Agent': 'Mozilla/5.0 (Potsherd)'}, timeout=15)
+    r.raise_for_status()
+    data = r.json()
+    if 'error' in data:
+        raise ValueError(str(data['error']))
+    return data.get('features', [])
+
+def _normalize(feature):
+    """Rename this service's fields to the names topo.html already reads."""
+    p = feature.get('properties') or {}
+    feature['properties'] = {
+        'map_name':     p.get('Map_Name') or p.get('Name_1') or p.get('Map_Name1'),
+        'imprint_year': p.get('Edit_Year'),
+        'map_scale':    p.get('Map_Scale'),
+        'scan_id':      p.get('Scan_ID1'),
+        'drg_name':     p.get('File_name'),
+    }
+    return feature
 
 @app.route('/api/topoview', methods=['GET'])
 def topoview():
@@ -42,33 +72,21 @@ def topoview():
     except (KeyError, ValueError):
         return jsonify({'error': 'lat and lng are required numbers'}), 400
 
-    params = {
-        'where': '1=1',
-        'geometry': f'{lng},{lat}',          # ArcGIS wants longitude first
-        'geometryType': 'esriGeometryPoint',
-        'inSR': 4326,
-        'spatialRel': 'esriSpatialRelIntersects',
-        'outFields': '*',
-        'returnGeometry': 'true',
-        'f': 'geojson',
-    }
-    headers = {'User-Agent': 'Mozilla/5.0 (Potsherd)', 'Accept': 'application/json'}
-
-    errors = []
-    for url in TOPOVIEW_URLS:
+    features, errors = [], []
+    for layer_id in HISTORICAL_LAYERS:
         try:
-            r = requests.get(url, params=params, headers=headers, timeout=15)
-            r.raise_for_status()
-            data = r.json()
-            if 'error' in data:                  # ArcGIS can return 200 with an error inside
-                raise ValueError(str(data['error']))
-            print("TOPOVIEW OK:", url)
-            return jsonify(data)
+            features += [_normalize(f) for f in _query_layer(layer_id, lng, lat)]
+            print("TOPOVIEW OK: layer", layer_id)
         except (requests.RequestException, ValueError) as e:
-            print("TOPOVIEW FAILED:", url, "->", repr(e))
-            errors.append(f"{url}: {e}")
+            print("TOPOVIEW FAILED: layer", layer_id, "->", repr(e))
+            errors.append(f"layer {layer_id}: {e}")
 
-    return jsonify({'error': 'All TopoView services failed', 'details': errors}), 502
+    if not features and len(errors) == len(HISTORICAL_LAYERS):
+        return jsonify({'error': 'Historical topo index unavailable', 'details': errors}), 502
+
+    # newest first, so the info panel (which shows features[0]) shows the latest edition
+    features.sort(key=lambda f: f['properties'].get('imprint_year') or 0, reverse=True)
+    return jsonify({'type': 'FeatureCollection', 'features': features})
 #TEST TO BYPASS CORS POLICY RESTRICTION
 
 @app.route('/register', methods=['GET', 'POST'])
