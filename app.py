@@ -27,8 +27,12 @@ def topo():
     return render_template('topo.html')
 
 #TEST TO BYPASS CORS POLICY RESTRICTION
-TOPOVIEW_URL = ("https://ngmdb.usgs.gov/arcgis/rest/services/"
-                "topoview/ustOverlay/MapServer/0/query")
+# Candidate TopoView services. The route tries them in order until one answers.
+TOPOVIEW_URLS = [
+    "https://ngmdb.usgs.gov/arcgis/rest/services/topoview/ustOverlay/MapServer/0/query",
+    "https://energy.usgs.gov/arcgis/rest/services/topoview/ustOverlay/MapServer/0/query",
+    "https://ngmdb.usgs.gov/arcgis/rest/services/topoview/ustOverlayAuto/MapServer/0/query",
+]
 
 @app.route('/api/topoview', methods=['GET'])
 def topoview():
@@ -48,15 +52,24 @@ def topoview():
         'returnGeometry': 'true',
         'f': 'geojson',
     }
-    try:
-        r = requests.get(TOPOVIEW_URL, params=params, timeout=15)
-        r.raise_for_status()
-        return jsonify(r.json())
-    except requests.RequestException as e:
-        print("TOPOVIEW ERROR:", repr(e))     # appears in your Flask terminal
-        return jsonify({'error': str(e)}), 502
-#TEST TO BYPASS CORS POLICY RESTRICTION
+    headers = {'User-Agent': 'Mozilla/5.0 (Potsherd)', 'Accept': 'application/json'}
 
+    errors = []
+    for url in TOPOVIEW_URLS:
+        try:
+            r = requests.get(url, params=params, headers=headers, timeout=15)
+            r.raise_for_status()
+            data = r.json()
+            if 'error' in data:                  # ArcGIS can return 200 with an error inside
+                raise ValueError(str(data['error']))
+            print("TOPOVIEW OK:", url)
+            return jsonify(data)
+        except (requests.RequestException, ValueError) as e:
+            print("TOPOVIEW FAILED:", url, "->", repr(e))
+            errors.append(f"{url}: {e}")
+
+    return jsonify({'error': 'All TopoView services failed', 'details': errors}), 502
+#TEST TO BYPASS CORS POLICY RESTRICTION
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
