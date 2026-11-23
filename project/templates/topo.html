@@ -57,7 +57,7 @@
         12
     );
 
-    L.tileLayer(
+    const streetLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/" +
         "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         {
@@ -69,6 +69,33 @@
         }
     ).addTo(map);
 
+    const usgsTopo = L.tileLayer(
+        "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 16,
+            attribution: "Map data: USGS The National Map"
+        }
+    );
+
+    // Layer switcher in the top-right corner: pick Street map or USGS Topo.
+    L.control.layers(
+        { "Street map": streetLayer, "USGS Topo": usgsTopo }
+    ).addTo(map);
+    
+    //TEST LOCATION
+    /*L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+        "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 19,
+
+            attribution:
+                "Tiles &copy; Esri — Sources: Esri, Garmin, USGS, " +
+                "NPS, and the GIS User Community"
+        }
+    ).addTo(map);*/
+    //TEST LOCATION
+    
     const searchMarker = L.marker([
         latitude,
         longitude
