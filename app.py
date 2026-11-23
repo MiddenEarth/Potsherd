@@ -53,8 +53,18 @@ def _query_layer(layer_id, lng, lat):
     return data.get('features', [])
 
 def _normalize(feature):
-    """Rename this service's fields to the names topo.html already reads."""
     p = feature.get('properties') or {}
+
+    # If the service sent no usable shape, draw the sheet's bounding box instead.
+    g = feature.get('geometry')
+    if not g or not g.get('coordinates'):
+        n, s, w, e = p.get('N_Lat'), p.get('S_Lat'), p.get('W_Long'), p.get('E_Long')
+        if None not in (n, s, w, e):
+            feature['geometry'] = {
+                'type': 'Polygon',
+                'coordinates': [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+            }
+
     feature['properties'] = {
         'map_name':     p.get('Map_Name') or p.get('Name_1') or p.get('Map_Name1'),
         'imprint_year': p.get('Edit_Year'),
