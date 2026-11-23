@@ -100,7 +100,6 @@
                 "TopoView response:",
                 response
             );
-
             if (
                 !response.features ||
                 response.features.length === 0
@@ -108,7 +107,6 @@
                 updateInfo(
                     "No historical map footprint was found at this location."
                 );
-
                 return;
             }
 
@@ -155,9 +153,10 @@
                 }
             ).addTo(map);
 
-            map.fitBounds(
-                footprintLayer.getBounds()
-            );
+            const bounds = footprintLayer.getBounds();
+            if(bounds.isValid()){
+                map.fitBounds(bounds);
+            }
 
             const firstMap =
                 response.features[0].properties;
