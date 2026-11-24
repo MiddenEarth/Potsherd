@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TopoView Retrieved Image Test</title>
+
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        #info {
+            position: absolute;
+            z-index: 1000;
+            top: 10px;
+            left: 50px;
+            width: 350px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            line-height: 1.4;
+            box-shadow: 0 1px 7px rgba(0, 0, 0, 0.35);
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="info">
+    Requesting TopoView image...
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    const map = L.map("map").setView(
+        [34.25, -118.813],
+        12
+    );
+
+    L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+        "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 19,
+
+            attribution:
+                "Tiles &copy; Esri — Sources: Esri, Garmin, USGS, " +
+                "NPS, and the GIS User Community"
+        }
+    ).addTo(map);
+
+    const south = 34.23777429648026;
+    const west = -118.53714026158342;
+    const north = 34.246825388895836;
+    const east = -118.52619134242049;
+
+    const leafletBounds = [
+        [south, west],
+        [north, east]
+    ];
+
+    const southwest = L.CRS.EPSG3857.project(
+        L.latLng(south, west)
+    );
+
+    const northeast = L.CRS.EPSG3857.project(
+        L.latLng(north, east)
+    );
+
+    const bbox = [
+        southwest.x,
+        southwest.y,
+        northeast.x,
+        northeast.y
+    ].join(",");
+
+    const exportUrl =
+        "https://ngmdb.usgs.gov/arcgis/rest/services/" +
+        "topoview/ustOverlay/MapServer/export?" +
+        new URLSearchParams({
+            bbox: bbox,
+            bboxSR: "3857",
+            imageSR: "3857",
+            size: "1200,800",
+            format: "png32",
+            transparent: "true",
+            layers: "show:0",
+            f: "image"
+        });
+
+    console.log("TopoView export URL:");
+    console.log(exportUrl);
+
+    async function loadTopoViewImage() {
+        const info = document.getElementById("info");
+
+        try {
+            const response = await fetch(exportUrl);
+
+            if (!response.ok) {
+                const errorText =
+                    await response.text();
+
+                throw new Error(
+                    `HTTP ${response.status}\n${errorText}`
+                );
+            }
+
+            const imageBlob =
+                await response.blob();
+
+            const imageUrl =
+                URL.createObjectURL(imageBlob);
+
+            const imageOverlay = L.imageOverlay(
+                imageUrl,
+                leafletBounds,
+                {
+                    opacity: 0.85,
+                    interactive: false
+                }
+            );
+
+            imageOverlay
+                .on("load", () => {
+                    info.innerHTML =
+                        "TopoView image loaded successfully.";
+                })
+                .addTo(map);
+
+            L.marker([34.25, -118.813])
+                .addTo(map)
+                .bindPopup(
+                    "Test location<br>" +
+                    "34.25, -118.813"
+                )
+                .openPopup();
+
+            map.fitBounds(leafletBounds);
+
+        } catch (error) {
+            console.error(
+                "TopoView image request failed:",
+                error
+            );
+
+            info.innerHTML = `
+                <strong>TopoView image failed.</strong><br><br>
+                ${error.message.replace(/\n/g, "<br>")}
+            `;
+        }
+    }
+
+    loadTopoViewImage();
+</script>
+
+</body>
+</html>

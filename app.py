@@ -24,6 +24,9 @@ def contact():
 @app.route('/topo.html', methods=['GET'])
 def topo():
     return render_template('topo.html')
+@app.route('/topo2.html', methods=['GET'])
+def topo2():
+    return render_template('topo2.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
