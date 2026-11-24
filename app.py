@@ -1,12 +1,4 @@
-from flask import (
-    Flask,
-    request,
-    jsonify,
-    render_template,
-    redirect,
-    url_for,
-    flash
-)
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user             #flask_login handles who is logged in with login_user/logout_user start and ends logins;
 from project import create_app, db
 from project.models import User, Find
@@ -14,6 +6,8 @@ import secrets                                                                  
 from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
 from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
 import requests
+from urllib.parse import unquote
+import re
 
 app = create_app()
 
@@ -33,7 +27,6 @@ def contact():
 @app.route('/topo.html', methods=['GET'])
 def topo():
     return render_template('topo.html')
-
 #TEST TO BYPASS CORS POLICY RESTRICTION
 # USGS's own TopoView /query endpoint returns 404, so we use Esri's public index of the
 # same USGS historical topo maps instead. It has one layer per map scale.
@@ -60,7 +53,43 @@ def _query_layer(layer_id, lng, lat):
         raise ValueError(str(data['error']))
     return data.get('features', [])
 
+def _year(p):
+    """Year isn't in its own field. It sits in the file name: ..._1949_250000_geo.tif"""
+    for text in (p.get('DownloadG'), p.get('File_name')):
+        if text:
+            m = re.search(r'_(\d{4})_\d+_geo', text)
+            if m:
+                return int(m.group(1))
+    m = re.search(r'(\d{4})$', p.get('Link') or '')      # fallback: "Los Angeles1949"
+    return int(m.group(1)) if m else None
+
 def _normalize(feature):
+
+    #print("RAW PROPERTIES:", feature.get('properties'))
+    p = feature.get('properties') or {}
+
+    # If the service sent no usable shape, draw the sheet's bounding box instead.
+    g = feature.get('geometry')
+    if not g or not g.get('coordinates'):
+        n, s, w, e = p.get('N_Lat'), p.get('S_Lat'), p.get('W_Long'), p.get('E_Long')
+        if None not in (n, s, w, e):
+            feature['geometry'] = {
+                'type': 'Polygon',
+                'coordinates': [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+            }
+
+    url = p.get('DownloadG') or p.get('File_name')
+    feature['properties'] = {
+        'map_name':     p.get('Map_Name') or p.get('Name_1') or p.get('Map_Name1'),
+        'imprint_year': _year(p),
+        'map_scale':    p.get('Map_Scale') or p.get('Scale_12'),
+        'scan_id':      p.get('OBJECTID'),
+        'drg_name':     unquote(url.rsplit('/', 1)[-1]) if url else None,
+        'download_url': url,
+    }
+    return feature
+
+'''def _normalize(feature):
     print("RAW PROPERTIES:", feature.get('properties'))
     p = feature.get('properties') or {}
 
@@ -82,6 +111,7 @@ def _normalize(feature):
         'drg_name':     p.get('File_name'),
     }
     return feature
+'''
 
 @app.route('/api/topoview', methods=['GET'])
 def topoview():
