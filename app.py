@@ -33,9 +33,6 @@ def contact():
 @app.route('/topo.html', methods=['GET'])
 def topo():
     return render_template('topo.html')
-'''@app.route('/topo2.html', methods=['GET'])
-def topo2():
-    return render_template('topo2.html')'''
 
 #TEST TO BYPASS CORS POLICY RESTRICTION
 # USGS's own TopoView /query endpoint returns 404, so we use Esri's public index of the
