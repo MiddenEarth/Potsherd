@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Potshed</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        
+    <script src="https://kit.fontawesome.com/4510c2d852.js" crossorigin="anonymous"></script>>
+</head>
+<body>
+   <div id ="controls">
+    <form id="coordinate-form">
+                        <label for="latitude">Enter Latitude:</label>
+                        <input type="text" id="latitude" name="latitude" required minlength="4" maxlength="8" size="10"
+                            placeholder="Enter Latitude" />
+
+                        <label for="longitude">Enter Longitude:</label>
+                        <input type="text" id="longitude" name="longitude" required minlength="4" maxlength="8"
+                            size="10" placeholder="Enter Longitude" />
+
+                        <button class="submit-button" id="submit-button" type="button">Submit</button>
+                        <button class="convert-button" id="convert-button" type="button">Convert</button><br>
+
+                        <output name="zone" for="zone" id="zone"></output><br>
+                        <output name="easting" for="easting" id="easting"></output><br>
+                        <output name="northing" for="northing" id="northing"></output><br>
+                    </form>
+
+                    <form id='circle-form'>
+                        <label for="buffer">Enter Buffer for circle in meters</label>
+                        <input type="text" id="buffer" name="buffer" required minlength="4" maxlength="8" size="10"
+                            placeholder="Enter circle_longitude" />
+                        <button class="submit-button" id="circle-button" type="button">make circle</button>
+                    </form>
+
+                    <form id='polygon-form'>
+                        <button class="submit-button" id="add-list" type="button">add coords</button>
+                        <button class="submit-button" id="make-list" type="button">make polygon</button>
+                        <button class="submit-button" id="clear-list" type="button">clear</button>
+                        <ul id="theList"></ul>
+                        <button class="copy-list" id="copy-list" type="button">copy list to clipboard</button>
+                        <textarea type="text" id="import-input" placeholder="Paste coordinates here"></textarea>
+                        <button class="import-list" id="import-list" type="button">import list</button>
+                    </form>
+                </div>
+                    <div id="instructions">
+                    <details>
+                    <summary>Map Instructions</summary>
+                    <p>Click on the map to add a marker. Click on a marker to remove it. Use the buttons below to add
+                        coordinates to a list, make a polygon, clear the list, copy the list to clipboard, or import a
+                        list of coordinates.</p>
+                </details>
+                <details>
+                    <summary>Polygon Instructions</summary>
+                    <p>Click on the map to add a marker. Click on a marker to remove it. Use the buttons below to add
+                        coordinates to a list, make a polygon, clear the list, copy the list to clipboard, or import a
+                        list of coordinates.</p>
+                </details>
+                <details>
+                    <summary>Circle Instructions</summary>
+                    <p>Click on the map to add a marker. Click on a marker to remove it. Use the buttons below to add coordinates to a list, make a polygon, clear the list
+                        , copy the list to clipboard, or import a list of coordinates.</p>
+                </details>  
+                <details>
+                    <summary>UTM Instructions</summary>
+                    <p>Enter the latitude and longitude in the input fields on the previous page. Click the "Convert" button to convert the coordinates to UTM. The UTM coordinates will be displayed below the input fields.</p>
+                </details>
+
+</div>
+    <div id="map"></div>
+
+<script src="script.js" defer></script>
+</body>
