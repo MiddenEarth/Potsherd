@@ -178,7 +178,7 @@
                         `);
                     }
                 }
-            ).addTo(map);
+            );//        #testcomment.addTo(map);
 
             const bounds = footprintLayer.getBounds();
             if(bounds.isValid()){
@@ -186,7 +186,9 @@
             }
 
                         // List every map sheet that covers this point, newest first.
-            const listItems = response.features.map(function(feature) {
+            
+            const listItems = response.features.map(function(feature, index) {
+            //const listItems = response.features.map(function(feature) {
                 const p = feature.properties;
 
                 const name  = p.map_name || "Unknown";
@@ -198,11 +200,15 @@
                 const link = p.download_url
                     ? `<br><a href="${p.download_url}" target="_blank" rel="noopener">Download map (GeoTIFF)</a>`
                     : "";
-
-                return `<li style="margin-bottom:6px;">
+                
+                return `<li data-index="${index}" style="margin-bottom:6px; padding:4px 6px; cursor:pointer; border-radius:4px;">
                             <strong>${name}</strong><br>
                             ${year} &middot; ${scale}${link}
                         </li>`;
+                //return `<li style="margin-bottom:6px;">
+                            //<strong>${name}</strong><br>
+                            //${year} &middot; ${scale}${link}
+                        //</li>`;
             });
 
             // Let the panel scroll if there are many maps.
@@ -215,6 +221,41 @@
                     ${listItems.join("")}
                 </ol>
             `);
+            
+            // ---- Pick ONE map from the list; only that map is drawn ----
+            const sheetLayers = footprintLayer.getLayers();   // same order as the list
+            let selectedIndex = null;
+            let selectedLayer = null;
+
+            function selectMap(index) {
+                // Remove whatever was drawn for the previous pick.
+                if (selectedLayer) {
+                    map.removeLayer(selectedLayer);
+                    selectedLayer = null;
+                }
+
+                // Clicking the picked map again clears the selection.
+                if (index === selectedIndex) {
+                    selectedIndex = null;
+                } else {
+                    selectedIndex = index;
+                    selectedLayer = sheetLayers[index].addTo(map);
+                    map.fitBounds(selectedLayer.getBounds());
+                }
+
+                // Highlight the picked row in the list.
+                info.querySelectorAll("li[data-index]").forEach(function(li) {
+                    li.style.background =
+                        Number(li.dataset.index) === selectedIndex ? "#dbeafe" : "";
+                });
+            }
+
+            info.addEventListener("click", function(event) {
+                if (event.target.closest("a")) return;        // let download links work
+                const li = event.target.closest("li[data-index]");
+                if (li) selectMap(Number(li.dataset.index));
+            });
+
         })
         .catch(function(error) {
             console.error("TopoView request failed:", error);
