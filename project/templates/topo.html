@@ -49,8 +49,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    const latitude = 34.25;
-    const longitude = -118.813;
+    const latitude = 34.24;
+    const longitude = -118.82;
 
     const map = L.map("map").setView(
         [latitude, longitude],
@@ -195,9 +195,13 @@
                     ? "1:" + Number(p.map_scale).toLocaleString()
                     : "scale unknown";
 
+                const link = p.download_url
+                    ? `<br><a href="${p.download_url}" target="_blank" rel="noopener">Download map (GeoTIFF)</a>`
+                    : "";
+
                 return `<li style="margin-bottom:6px;">
                             <strong>${name}</strong><br>
-                            ${year} &middot; ${scale}
+                            ${year} &middot; ${scale}${link}
                         </li>`;
             });
 
