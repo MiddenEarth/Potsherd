@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TopoView Retrieved Image Test</title>
+    <title>TopoView Image Test</title>
 
     <link
             rel="stylesheet"
@@ -27,7 +27,7 @@
             z-index: 1000;
             top: 10px;
             left: 50px;
-            width: 350px;
+            width: 320px;
             padding: 12px;
             background: white;
             border-radius: 6px;
@@ -41,20 +41,25 @@
 <body>
 
 <div id="info">
-    Requesting TopoView image...
+    Searching for a TopoView map...
 </div>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
+
 <script>
+    const latitude = 34.25;
+    const longitude = -118.813;
+
     const map = L.map("map").setView(
-        [34.25, -118.813],
+        [latitude, longitude],
         12
     );
 
-    L.tileLayer(
+    const streetLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/" +
         "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         {
@@ -66,109 +71,204 @@
         }
     ).addTo(map);
 
-    const south = 34.23777429648026;
-    const west = -118.53714026158342;
-    const north = 34.246825388895836;
-    const east = -118.52619134242049;
-
-    const leafletBounds = [
-        [south, west],
-        [north, east]
-    ];
-
-    const southwest = L.CRS.EPSG3857.project(
-        L.latLng(south, west)
+    const usgsTopo = L.tileLayer(
+        "https://basemap.nationalmap.gov/arcgis/rest/services/" +
+        "USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 16,
+            attribution:
+                "Map data: USGS The National Map"
+        }
     );
 
-    const northeast = L.CRS.EPSG3857.project(
-        L.latLng(north, east)
-    );
+    const layerControl = L.control.layers(
+        {
+            "Street map": streetLayer,
+            "USGS Topo": usgsTopo
+        }
+    ).addTo(map);
 
-    const bbox = [
-        southwest.x,
-        southwest.y,
-        northeast.x,
-        northeast.y
-    ].join(",");
+    const searchMarker = L.marker([
+        latitude,
+        longitude
+    ])
+        .addTo(map)
+        .bindPopup(`
+            Search point<br>
+            Latitude: ${latitude}<br>
+            Longitude: ${longitude}
+        `)
+        .openPopup();
 
-    const exportUrl =
+    const info =
+        document.getElementById("info");
+
+    function updateInfo(message) {
+        info.innerHTML = message;
+    }
+
+    /*
+     * This is the parent ArcGIS MapServer.
+     *
+     * It renders the TopoView coverage layer as an image
+     * instead of drawing GeoJSON polygons manually.
+     */
+    const topoViewMapService =
         "https://ngmdb.usgs.gov/arcgis/rest/services/" +
-        "topoview/ustOverlay/MapServer/export?" +
-        new URLSearchParams({
-            bbox: bbox,
-            bboxSR: "3857",
-            imageSR: "3857",
-            size: "1200,800",
+        "topoview/ustOverlay/MapServer";
+
+    const topoViewImageLayer =
+        L.esri.dynamicMapLayer({
+            url: topoViewMapService,
+            opacity: 0.8,
+            transparent: true,
             format: "png32",
-            transparent: "true",
-            layers: "show:0",
-            f: "image"
+            layers: [0]
         });
 
-    console.log("TopoView export URL:");
-    console.log(exportUrl);
+    layerControl.addOverlay(
+        topoViewImageLayer,
+        "TopoView image layer"
+    );
 
-    async function loadTopoViewImage() {
-        const info = document.getElementById("info");
-
-        try {
-            const response = await fetch(exportUrl);
-
-            if (!response.ok) {
-                const errorText =
-                    await response.text();
-
-                throw new Error(
-                    `HTTP ${response.status}\n${errorText}`
-                );
-            }
-
-            const imageBlob =
-                await response.blob();
-
-            const imageUrl =
-                URL.createObjectURL(imageBlob);
-
-            const imageOverlay = L.imageOverlay(
-                imageUrl,
-                leafletBounds,
-                {
-                    opacity: 0.85,
-                    interactive: false
-                }
+    topoViewImageLayer.on(
+        "load",
+        function() {
+            console.log(
+                "TopoView image layer loaded."
             );
+        }
+    );
 
-            imageOverlay
-                .on("load", () => {
-                    info.innerHTML =
-                        "TopoView image loaded successfully.";
-                })
-                .addTo(map);
-
-            L.marker([34.25, -118.813])
-                .addTo(map)
-                .bindPopup(
-                    "Test location<br>" +
-                    "34.25, -118.813"
-                )
-                .openPopup();
-
-            map.fitBounds(leafletBounds);
-
-        } catch (error) {
+    topoViewImageLayer.on(
+        "requesterror",
+        function(error) {
             console.error(
-                "TopoView image request failed:",
+                "TopoView image layer failed:",
                 error
             );
 
-            info.innerHTML = `
-                <strong>TopoView image failed.</strong><br><br>
-                ${error.message.replace(/\n/g, "<br>")}
-            `;
+            updateInfo(`
+                <strong>Map information loaded,</strong><br>
+                but the TopoView image layer failed.
+            `);
         }
-    }
+    );
 
-    loadTopoViewImage();
+    updateInfo(
+        "Requesting TopoView map information..."
+    );
+
+    /*
+     * Ask your Flask server for the footprint metadata.
+     * The Flask server then asks USGS.
+     */
+    fetch(
+        `/api/topoview?lat=${latitude}&lng=${longitude}`
+    )
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error(
+                    "Backend HTTP error: " +
+                    response.status
+                );
+            }
+
+            return response.json();
+        })
+        .then(function(response) {
+            console.log(
+                "TopoView response:",
+                response
+            );
+
+            if (
+                !response.features ||
+                response.features.length === 0
+            ) {
+                updateInfo(
+                    "No historical map was found at this location."
+                );
+
+                return;
+            }
+
+            /*
+             * Create a temporary invisible GeoJSON object
+             * only to obtain the returned map bounds.
+             */
+            const footprintGeometry =
+                L.geoJSON(response);
+
+            const bounds =
+                footprintGeometry.getBounds();
+
+            if (bounds.isValid()) {
+                map.fitBounds(bounds);
+            }
+
+            /*
+             * Add the server-rendered image layer
+             * after the map record has been found.
+             */
+            topoViewImageLayer.addTo(map);
+
+            const firstMap =
+                response.features[0].properties;
+
+            const mapName =
+                firstMap.map_name ||
+                "Unknown";
+
+            const mapYear =
+                firstMap.imprint_year ||
+                "Unknown";
+
+            const mapScale =
+                firstMap.map_scale ||
+                "Unknown";
+
+            const drgName =
+                firstMap.drg_name ||
+                "Unknown";
+
+            const scanId =
+                firstMap.scan_id ||
+                "Unknown";
+
+            updateInfo(`
+                <strong>Historical map found</strong><br><br>
+
+                <strong>Name:</strong>
+                ${mapName}<br>
+
+                <strong>Year:</strong>
+                ${mapYear}<br>
+
+                <strong>Scale:</strong>
+                ${mapScale}<br>
+
+                <strong>DRG name:</strong>
+                ${drgName}<br>
+
+                <strong>Scan ID:</strong>
+                ${scanId}<br><br>
+
+                <strong>TopoView image layer:</strong>
+                requested
+            `);
+        })
+        .catch(function(error) {
+            console.error(
+                "TopoView request failed:",
+                error
+            );
+
+            updateInfo(`
+                <strong>TopoView request failed.</strong><br><br>
+                ${error.message}
+            `);
+        });
 </script>
 
 </body>

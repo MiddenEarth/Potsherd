@@ -1,11 +1,21 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required, current_user             #flask_login handles who is logged in with login_user/logout_user start and ends logins; 
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    Response
+)
+from flask_login import login_user, logout_user, login_required, current_user             #flask_login handles who is logged in with login_user/logout_user start and ends logins;
 from project import create_app, db
 from project.models import User, Find
 import secrets                                                                            #secrets is making cryptographically strong values
 from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
 from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
 import requests
+import math
 
 app = create_app()
 
@@ -34,6 +44,20 @@ def topo2():
 # same USGS historical topo maps instead. It has one layer per map scale.
 HISTORICAL_INDEX = "https://historical1.arcgis.com/arcgis/rest/services/USA_Historical_Topo_Maps_Index/MapServer"
 HISTORICAL_LAYERS = [4, 9, 10, 12, 15]   # 1:24,000  1:62,500  1:63,360  1:100,000  1:250,000
+
+def lon_lat_to_web_mercator(lon, lat):
+    x = lon * 20037508.34 / 180
+
+    y = math.log(
+        math.tan(
+            (90 + lat) * math.pi / 360
+        )
+    )
+
+    y = y / (math.pi / 180)
+    y = y * 20037508.34 / 180
+
+    return x, y
 
 def _query_layer(layer_id, lng, lat):
     params = {
@@ -76,6 +100,100 @@ def _normalize(feature):
         'drg_name':     p.get('File_name'),
     }
     return feature
+
+@app.route('/api/topoview-image', methods=['GET'])
+def topoview_image():
+    bbox_text = request.args.get('bbox')
+
+    if not bbox_text:
+        return jsonify({
+            'error': 'bbox is required'
+        }), 400
+
+    try:
+        west, south, east, north = map(
+            float,
+            bbox_text.split(',')
+        )
+
+        southwest = lon_lat_to_web_mercator(
+            west,
+            south
+        )
+
+        northeast = lon_lat_to_web_mercator(
+            east,
+            north
+        )
+
+        bbox_3857 = ",".join([
+            str(southwest[0]),
+            str(southwest[1]),
+            str(northeast[0]),
+            str(northeast[1])
+        ])
+
+        params = {
+            'bbox': bbox_3857,
+            'bboxSR': '3857',
+            'imageSR': '3857',
+            'size': '1200,800',
+            'format': 'png32',
+            'transparent': 'true',
+
+            # Display the historical-map index layers
+            'layers': 'show:' + ','.join(
+                str(layer_id)
+                for layer_id in HISTORICAL_LAYERS
+            ),
+
+            'f': 'image'
+        }
+
+        usgs_response = requests.get(
+            f'{HISTORICAL_INDEX}/export',
+            params=params,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Potsherd)'
+            },
+            timeout=30
+        )
+
+        content_type = usgs_response.headers.get(
+            'Content-Type',
+            ''
+        )
+
+        if usgs_response.status_code != 200:
+            print(
+                'TopoView image request failed:',
+                usgs_response.status_code,
+                usgs_response.text[:500]
+            )
+
+        return Response(
+            usgs_response.content,
+            status=usgs_response.status_code,
+            content_type=content_type or 'image/png'
+        )
+
+    except ValueError:
+        return jsonify({
+            'error':
+                'bbox must contain four numbers: ' +
+                'west,south,east,north'
+        }), 400
+
+    except Exception as error:
+        print(
+            'TopoView image proxy error:',
+            repr(error)
+        )
+
+        return jsonify({
+            'error': str(error)
+        }), 500
+
 
 @app.route('/api/topoview', methods=['GET'])
 def topoview():
@@ -186,7 +304,7 @@ def forgot_password():
         flash('If that email is registered, a reset link has been sent.')
         return redirect(url_for('login'))
     return render_template('forgot_password.html')
-    
+
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     user = User.query.filter_by(reset_token=token).first()
