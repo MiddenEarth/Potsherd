@@ -185,26 +185,31 @@
                 map.fitBounds(bounds);
             }
 
-            const firstMap =
-                response.features[0].properties;
+                        // List every map sheet that covers this point, newest first.
+            const listItems = response.features.map(function(feature) {
+                const p = feature.properties;
+
+                const name  = p.map_name || "Unknown";
+                const year  = p.imprint_year || "year unknown";
+                const scale = p.map_scale
+                    ? "1:" + Number(p.map_scale).toLocaleString()
+                    : "scale unknown";
+
+                return `<li style="margin-bottom:6px;">
+                            <strong>${name}</strong><br>
+                            ${year} &middot; ${scale}
+                        </li>`;
+            });
+
+            // Let the panel scroll if there are many maps.
+            info.style.maxHeight = "60vh";
+            info.style.overflowY = "auto";
 
             updateInfo(`
-                <strong>Historical map footprint found</strong><br><br>
-
-                <strong>Name:</strong>
-                ${firstMap.map_name || "Unknown"}<br>
-
-                <strong>Year:</strong>
-                ${firstMap.imprint_year || "Unknown"}<br>
-
-                <strong>Scale:</strong>
-                ${firstMap.map_scale || "Unknown"}<br>
-
-                <strong>DRG name:</strong>
-                ${firstMap.drg_name || "Unknown"}<br>
-
-                <strong>Scan ID:</strong>
-                ${firstMap.scan_id || "Unknown"}
+                <strong>${response.features.length} maps found at this point</strong>
+                <ol style="padding-left:20px; margin:8px 0 0;">
+                    ${listItems.join("")}
+                </ol>
             `);
         })
         .catch(function(error) {
