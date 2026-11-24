@@ -48,8 +48,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<script src="https://unpkg.com/esri-leaflet@3.0.19/dist/esri-leaflet.js"></script>
-
 <script>
     const latitude = 34.25;
     const longitude = -118.813;
@@ -59,7 +57,7 @@
         12
     );
 
-    L.tileLayer(
+    const streetLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/" +
         "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
         {
@@ -71,6 +69,33 @@
         }
     ).addTo(map);
 
+    const usgsTopo = L.tileLayer(
+        "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 16,
+            attribution: "Map data: USGS The National Map"
+        }
+    );
+
+    // Layer switcher in the top-right corner: pick Street map or USGS Topo.
+    L.control.layers(
+        { "Street map": streetLayer, "USGS Topo": usgsTopo }
+    ).addTo(map);
+    
+    //TEST LOCATION
+    /*L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+        "World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 19,
+
+            attribution:
+                "Tiles &copy; Esri — Sources: Esri, Garmin, USGS, " +
+                "NPS, and the GIS User Community"
+        }
+    ).addTo(map);*/
+    //TEST LOCATION
+    
     const searchMarker = L.marker([
         latitude,
         longitude
@@ -83,56 +108,25 @@
         `)
         .openPopup();
 
-    const topoViewLayer =
-        "https://ngmdb.usgs.gov/arcgis/rest/services/" +
-        "topoview/ustOverlay/MapServer/0";
-
     const info = document.getElementById("info");
 
     function updateInfo(message) {
         info.innerHTML = message;
     }
 
-    const queryParameters = {
-        where: "1=1",
-
-        // ArcGIS expects longitude first
-        geometry: `${longitude},${latitude}`,
-
-        geometryType: "esriGeometryPoint",
-        inSR: 4326,
-        spatialRel: "esriSpatialRelIntersects",
-
-        outFields: "*",
-        returnGeometry: true,
-        f: "geojson"
-    };
-
     updateInfo("Requesting TopoView footprint...");
 
-    L.esri.get(
-        `${topoViewLayer}/query`,
-        queryParameters,
-        function(error, response) {
-            if (error) {
-                console.error(
-                    "TopoView request failed:",
-                    error
-                );
-
-                updateInfo(`
-                    <strong>TopoView request failed.</strong><br><br>
-                    Check the browser console for details.
-                `);
-
-                return;
-            }
-
+    // Ask OUR Flask server (same origin, so no CORS); it asks USGS for us.
+    fetch(`/api/topoview?lat=${latitude}&lng=${longitude}`)
+        .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+        })
+        .then(function(response) {
             console.log(
                 "TopoView response:",
                 response
             );
-
             if (
                 !response.features ||
                 response.features.length === 0
@@ -140,7 +134,6 @@
                 updateInfo(
                     "No historical map footprint was found at this location."
                 );
-
                 return;
             }
 
@@ -187,9 +180,10 @@
                 }
             ).addTo(map);
 
-            map.fitBounds(
-                footprintLayer.getBounds()
-            );
+            const bounds = footprintLayer.getBounds();
+            if(bounds.isValid()){
+                map.fitBounds(bounds);
+            }
 
             const firstMap =
                 response.features[0].properties;
@@ -212,8 +206,15 @@
                 <strong>Scan ID:</strong>
                 ${firstMap.scan_id || "Unknown"}
             `);
-        }
-    );
+        })
+        .catch(function(error) {
+            console.error("TopoView request failed:", error);
+
+            updateInfo(`
+                <strong>TopoView request failed.</strong><br><br>
+                Check the browser console for details.
+            `);
+        });
 </script>
 
 </body>

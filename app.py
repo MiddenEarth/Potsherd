@@ -5,6 +5,7 @@ from project.models import User, Find
 import secrets                                                                            #secrets is making cryptographically strong values
 from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
 from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
+import requests
 
 app = create_app()
 
@@ -27,6 +28,79 @@ def topo():
 @app.route('/topo2.html', methods=['GET'])
 def topo2():
     return render_template('topo2.html')
+
+#TEST TO BYPASS CORS POLICY RESTRICTION
+# USGS's own TopoView /query endpoint returns 404, so we use Esri's public index of the
+# same USGS historical topo maps instead. It has one layer per map scale.
+HISTORICAL_INDEX = "https://historical1.arcgis.com/arcgis/rest/services/USA_Historical_Topo_Maps_Index/MapServer"
+HISTORICAL_LAYERS = [4, 9, 10, 12, 15]   # 1:24,000  1:62,500  1:63,360  1:100,000  1:250,000
+
+def _query_layer(layer_id, lng, lat):
+    params = {
+        'where': '1=1',
+        'geometry': f'{lng},{lat}',                  # ArcGIS wants longitude first
+        'geometryType': 'esriGeometryPoint',
+        'inSR': 4326,
+        'spatialRel': 'esriSpatialRelIntersects',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'outSR': 4326,
+        'f': 'geojson',
+    }
+    r = requests.get(f'{HISTORICAL_INDEX}/{layer_id}/query', params=params,
+                     headers={'User-Agent': 'Mozilla/5.0 (Potsherd)'}, timeout=15)
+    r.raise_for_status()
+    data = r.json()
+    if 'error' in data:
+        raise ValueError(str(data['error']))
+    return data.get('features', [])
+
+def _normalize(feature):
+    p = feature.get('properties') or {}
+
+    # If the service sent no usable shape, draw the sheet's bounding box instead.
+    g = feature.get('geometry')
+    if not g or not g.get('coordinates'):
+        n, s, w, e = p.get('N_Lat'), p.get('S_Lat'), p.get('W_Long'), p.get('E_Long')
+        if None not in (n, s, w, e):
+            feature['geometry'] = {
+                'type': 'Polygon',
+                'coordinates': [[[w, s], [e, s], [e, n], [w, n], [w, s]]],
+            }
+
+    feature['properties'] = {
+        'map_name':     p.get('Map_Name') or p.get('Name_1') or p.get('Map_Name1'),
+        'imprint_year': p.get('Edit_Year'),
+        'map_scale':    p.get('Map_Scale'),
+        'scan_id':      p.get('Scan_ID1'),
+        'drg_name':     p.get('File_name'),
+    }
+    return feature
+
+@app.route('/api/topoview', methods=['GET'])
+def topoview():
+    try:
+        lat = float(request.args['lat'])
+        lng = float(request.args['lng'])
+    except (KeyError, ValueError):
+        return jsonify({'error': 'lat and lng are required numbers'}), 400
+
+    features, errors = [], []
+    for layer_id in HISTORICAL_LAYERS:
+        try:
+            features += [_normalize(f) for f in _query_layer(layer_id, lng, lat)]
+            print("TOPOVIEW OK: layer", layer_id)
+        except (requests.RequestException, ValueError) as e:
+            print("TOPOVIEW FAILED: layer", layer_id, "->", repr(e))
+            errors.append(f"layer {layer_id}: {e}")
+
+    if not features and len(errors) == len(HISTORICAL_LAYERS):
+        return jsonify({'error': 'Historical topo index unavailable', 'details': errors}), 502
+
+    # newest first, so the info panel (which shows features[0]) shows the latest edition
+    features.sort(key=lambda f: f['properties'].get('imprint_year') or 0, reverse=True)
+    return jsonify({'type': 'FeatureCollection', 'features': features})
+#TEST TO BYPASS CORS POLICY RESTRICTION
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
