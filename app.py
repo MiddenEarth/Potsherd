@@ -15,7 +15,7 @@ import secrets                                                                  
 from datetime import datetime, timedelta                                                  #datetime and timedelta handle times and durations
 from project.outbound_mail import send_email                                              #send_email is function that talks to brevo for email service
 import requests
-import math
+#import math
 
 app = create_app()
 
@@ -35,9 +35,9 @@ def contact():
 @app.route('/topo.html', methods=['GET'])
 def topo():
     return render_template('topo.html')
-@app.route('/topo2.html', methods=['GET'])
+'''@app.route('/topo2.html', methods=['GET'])
 def topo2():
-    return render_template('topo2.html')
+    return render_template('topo2.html')'''
 
 #TEST TO BYPASS CORS POLICY RESTRICTION
 # USGS's own TopoView /query endpoint returns 404, so we use Esri's public index of the
@@ -45,7 +45,8 @@ def topo2():
 HISTORICAL_INDEX = "https://historical1.arcgis.com/arcgis/rest/services/USA_Historical_Topo_Maps_Index/MapServer"
 HISTORICAL_LAYERS = [4, 9, 10, 12, 15]   # 1:24,000  1:62,500  1:63,360  1:100,000  1:250,000
 
-def lon_lat_to_web_mercator(lon, lat):
+##LUIS##
+'''def lon_lat_to_web_mercator(lon, lat):
     x = lon * 20037508.34 / 180
 
     y = math.log(
@@ -58,6 +59,8 @@ def lon_lat_to_web_mercator(lon, lat):
     y = y * 20037508.34 / 180
 
     return x, y
+    '''
+##LUIS
 
 def _query_layer(layer_id, lng, lat):
     params = {
@@ -101,6 +104,7 @@ def _normalize(feature):
     }
     return feature
 
+'''
 @app.route('/api/topoview-image', methods=['GET'])
 def topoview_image():
     bbox_text = request.args.get('bbox')
@@ -193,8 +197,8 @@ def topoview_image():
         return jsonify({
             'error': str(error)
         }), 500
-
-
+'''
+##DAVID FIX BELOW##
 @app.route('/api/topoview', methods=['GET'])
 def topoview():
     try:
