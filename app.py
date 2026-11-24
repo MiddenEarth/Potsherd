@@ -61,6 +61,7 @@ def _query_layer(layer_id, lng, lat):
     return data.get('features', [])
 
 def _normalize(feature):
+    print("RAW PROPERTIES:", feature.get('properties'))
     p = feature.get('properties') or {}
 
     # If the service sent no usable shape, draw the sheet's bounding box instead.
